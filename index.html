@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Pro Penalty - Falsolu Şut</title>
+    <title>3D Pro Penalty - FINAL FIX</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
         body { font-family: 'Segoe UI', sans-serif; overflow: hidden; background: #1a1a1a; color: white; }
@@ -15,82 +15,71 @@
             background: #000; z-index: 9999; display: flex; flex-direction: column;
             justify-content: center; align-items: center;
         }
-        .loader-bar {
-            width: 300px; height: 10px; background: #333; margin-top: 20px;
-            border-radius: 5px; overflow: hidden;
-        }
-        .loader-fill {
-            width: 0%; height: 100%; background: #FFD700; transition: width 0.2s;
-        }
+        .loader-text { font-size: 24px; color: #FFD700; margin-bottom: 20px; font-weight: bold; }
+        .loader-bar { width: 300px; height: 8px; background: #333; border-radius: 4px; overflow: hidden; }
+        .loader-fill { width: 0%; height: 100%; background: #FFD700; transition: width 0.2s; }
 
-        /* UI Panelleri */
+        /* UI */
         .ui-panel {
             position: absolute; top: 20px; left: 20px;
-            background: rgba(0, 0, 0, 0.6); padding: 15px 25px; border-radius: 12px;
+            background: rgba(0, 0, 0, 0.7); padding: 15px 25px; border-radius: 12px;
             border-left: 5px solid #FFD700; min-width: 200px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
+        .stat { margin: 5px 0; font-size: 20px; font-weight: bold; font-family: 'Courier New', monospace; }
         
-        .stat { margin: 5px 0; font-size: 18px; font-weight: bold; font-family: monospace; }
-        
+        #aimInfo {
+            position: absolute; bottom: 180px; left: 50%; transform: translateX(-50%);
+            font-size: 24px; font-weight: 900; color: #00e5ff;
+            text-shadow: 0 0 15px rgba(0, 229, 255, 0.8);
+            background: rgba(0,0,0,0.5); padding: 5px 20px; border-radius: 20px;
+        }
+
         #powerContainer {
-            position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%);
-            width: 350px; text-align: center; font-weight: bold;
-            text-shadow: 1px 1px 2px black;
+            position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);
+            width: 400px; text-align: center; font-weight: bold;
+            text-shadow: 2px 2px 4px black;
         }
         #powerBar {
-            width: 100%; height: 30px; background: rgba(0,0,0,0.6); 
-            border: 3px solid white; border-radius: 20px; overflow: hidden;
-            margin-top: 5px;
+            width: 100%; height: 40px; background: rgba(0,0,0,0.8); 
+            border: 4px solid white; border-radius: 25px; overflow: hidden; margin-top: 5px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
         #powerFill {
             width: 0%; height: 100%; 
-            background: linear-gradient(90deg, #4CAF50, #FFEB3B, #F44336);
-        }
-
-        /* Nişangah ve Bilgi */
-        #aimInfo {
-            position: absolute; bottom: 150px; left: 50%; transform: translateX(-50%);
-            font-size: 20px; font-weight: bold; color: #00e5ff;
-            text-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+            background: linear-gradient(90deg, #4CAF50, #FFEB3B, #ff0000);
         }
 
         #message {
             position: absolute; top: 30%; left: 50%; transform: translate(-50%, -50%) scale(0);
-            font-size: 90px; font-weight: 900; pointer-events: none;
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            text-shadow: 0 0 30px rgba(0,0,0,1);
-            z-index: 100;
-        }
-        
-        .controls-hint {
-            position: absolute; bottom: 20px; width: 100%; text-align: center; color: #888;
+            font-size: 100px; font-weight: 900; pointer-events: none;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            text-shadow: 0 10px 30px rgba(0,0,0,1);
+            z-index: 100; -webkit-text-stroke: 3px black;
         }
     </style>
 </head>
 <body>
 
     <div id="loadingScreen">
-        <h1 style="color:#FFD700">MODLAR YÜKLENİYOR...</h1>
+        <div class="loader-text">SAHA HAZIRLANIYOR...</div>
         <div class="loader-bar"><div class="loader-fill" id="loaderFill"></div></div>
     </div>
 
     <div id="gameContainer">
         <div class="ui-panel">
-            <div class="stat">GOL: <span id="score" style="color:#FFD700">0</span></div>
-            <div class="stat">DENEME: <span id="attempts">0</span></div>
+            <div class="stat">SKOR: <span id="score" style="color:#FFD700">0</span></div>
+            <div class="stat">ŞUT: <span id="attempts">0</span></div>
         </div>
 
-        <div id="aimInfo">YÖN: ORTA</div>
+        <div id="aimInfo">ORTA</div>
 
         <div id="powerContainer">
-            <div>GÜÇ (SPACE BASILI TUT)</div>
+            <div>SPACE TUŞUNA BASILI TUT</div>
             <div id="powerBar"><div id="powerFill"></div></div>
         </div>
 
-        <div id="message">GOOOL!</div>
-        
-        <div class="controls-hint">YÖN TUŞLARI: Nişan | SPACE: Şut | R: Reset</div>
+        <div id="message">GOL!</div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -98,104 +87,110 @@
 
     <script>
         // --- AYARLAR ---
-        // Topu küçültmek için bu değeri düşürdüm (Önceki 20 idi, şimdi 8)
-        const BALL_SCALE = 8.0; 
+        const BALL_SCALE = 15.0;  // Topu BÜYÜTTÜM (8'den 15'e)
+        const BALL_START_Y = 0.6; // Topu YUKARI kaldırdım (Gömülmesin diye)
         const GOAL_SCALE = 8.5; 
         
-        // Kamera ayarı (Z değerini artırarak kamerayı geriye çektim)
-        const CAMERA_START_POS = new THREE.Vector3(0, 2.5, 12); 
-
         // --- DEĞİŞKENLER ---
         let scene, camera, renderer, loader;
-        // Top fiziği ve modeli ayrı tutulur
-        let ballPhysics = { pos: new THREE.Vector3(0, 0.22, 0), vel: new THREE.Vector3(), curve: 0 }; 
-        let ballModel = null; 
+        // Physics
+        let ballPhysics = { pos: new THREE.Vector3(0, BALL_START_Y, 0), vel: new THREE.Vector3(), curve: 0 };
+        // Models
+        let ballModel = null;
         let goalModel = null;
-        let goalkeeper; 
+        let goalkeeper;
         
+        // Game State
         let isGameReady = false;
         let isPowering = false;
         let isShooting = false;
         let power = 0;
-        let powerDir = 1.5; // Güç barı hızı
+        let powerDir = 2; // Bar dolma hızı
         let aimX = 0; // -1 (Sol) ... 1 (Sağ)
-        
-        let score = 0;
-        let attempts = 0;
+        let score = 0, attempts = 0;
 
         init();
 
         function init() {
-            // 1. SAHNE KURULUMU
+            // 1. Sahne
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x1e1e1e); // Koyu gri arka plan
-            scene.fog = new THREE.Fog(0x1e1e1e, 20, 100); // Sis efekti
+            scene.background = new THREE.Color(0x1a1a1a);
+            scene.fog = new THREE.Fog(0x1a1a1a, 20, 90);
 
-            // 2. KAMERA
+            // 2. Kamera (Top büyüdüğü için kamerayı az daha geri çektim)
             camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.copy(CAMERA_START_POS);
+            camera.position.set(0, 3, 13);
             
-            // 3. RENDERER (Görüntü Oluşturucu)
+            // 3. Renderer
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.shadowMap.enabled = true;
-            renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Yumuşak gölgeler
-            renderer.outputEncoding = THREE.sRGBEncoding; // Renk düzeltmesi
-            renderer.toneMapping = THREE.ACESFilmicToneMapping; // Sinematik renkler
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
             document.getElementById('gameContainer').appendChild(renderer.domElement);
 
-            // 4. IŞIKLANDIRMA (Mat görünüm için önemli)
-            const ambient = new THREE.AmbientLight(0xffffff, 0.6); // Genel aydınlatma
+            // 4. Işıklar
+            const ambient = new THREE.AmbientLight(0xffffff, 0.8);
             scene.add(ambient);
             
-            const sun = new THREE.DirectionalLight(0xffffff, 1.5); // Güneş ışığı
-            sun.position.set(20, 50, 20);
+            const sun = new THREE.DirectionalLight(0xffffff, 1.2);
+            sun.position.set(15, 30, 15);
             sun.castShadow = true;
-            // Gölge kalitesini artır
-            sun.shadow.mapSize.width = 2048;
+            sun.shadow.mapSize.width = 2048; 
             sun.shadow.mapSize.height = 2048;
             scene.add(sun);
 
-            // 5. ZEMİN VE ÇEVRE
+            // 5. Ortam
             createEnvironment();
+            createGoalkeeper(); // Basit kaleci
+            loadModels(); // Modelleri yükle
 
-            // 6. MODELLERİ YÜKLE
-            loadModels();
-
-            // 7. EVENTLER
-            window.addEventListener('resize', onResize);
+            // 6. Eventler
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
             window.addEventListener('keydown', onKeyDown);
             window.addEventListener('keyup', onKeyUp);
 
-            // 8. BAŞLAT
             animate();
         }
 
         function createEnvironment() {
-            // Çim Zemin
+            // Zemin
             const groundGeo = new THREE.PlaneGeometry(200, 200);
-            const groundMat = new THREE.MeshStandardMaterial({ 
-                color: 0x2e7d32, 
-                roughness: 1,
-                metalness: 0
-            });
+            const groundMat = new THREE.MeshStandardMaterial({ color: 0x1b5e20, roughness: 1 });
             const ground = new THREE.Mesh(groundGeo, groundMat);
             ground.rotation.x = -Math.PI / 2;
             ground.receiveShadow = true;
             scene.add(ground);
 
-            // Ceza Sahası Çizgisi
-            const lineMat = new THREE.MeshBasicMaterial({ color: 0xffffff, opacity: 0.8, transparent: true });
-            const line = new THREE.Mesh(new THREE.PlaneGeometry(40, 0.3), lineMat);
-            line.rotation.x = -Math.PI / 2;
-            line.position.set(0, 0.02, -18);
-            scene.add(line);
-            
-            // Penaltı Noktası
-            const spot = new THREE.Mesh(new THREE.CircleGeometry(0.3, 16), lineMat);
+            // Çizgiler
+            const lineMat = new THREE.MeshBasicMaterial({ color: 0xffffff, opacity: 0.7, transparent: true });
+            const goalLine = new THREE.Mesh(new THREE.PlaneGeometry(40, 0.2), lineMat);
+            goalLine.rotation.x = -Math.PI / 2;
+            goalLine.position.set(0, 0.02, -18);
+            scene.add(goalLine);
+
+            // Penaltı noktası
+            const spot = new THREE.Mesh(new THREE.CircleGeometry(0.4, 16), lineMat);
             spot.rotation.x = -Math.PI / 2;
-            spot.position.set(0, 0.03, 0); // Topun hemen altı
+            spot.position.set(0, 0.03, 0);
             scene.add(spot);
+        }
+
+        function createGoalkeeper() {
+            // Geçici Kaleci (Kutu)
+            goalkeeper = new THREE.Group();
+            const mat = new THREE.MeshStandardMaterial({ color: 0xd32f2f, roughness: 0.3 });
+            const body = new THREE.Mesh(new THREE.BoxGeometry(1, 1.9, 0.5), mat);
+            body.position.y = 0.95;
+            body.castShadow = true;
+            goalkeeper.add(body);
+            goalkeeper.position.set(0, 0, -19);
+            scene.add(goalkeeper);
         }
 
         function loadModels() {
@@ -203,114 +198,93 @@
             loader = new THREE.GLTFLoader(manager);
 
             manager.onProgress = (url, loaded, total) => {
-                const percent = (loaded / total) * 100;
-                document.getElementById('loaderFill').style.width = percent + '%';
+                document.getElementById('loaderFill').style.width = (loaded / total * 100) + '%';
             };
-
             manager.onLoad = () => {
                 document.getElementById('loadingScreen').style.display = 'none';
                 isGameReady = true;
-                // Eğer model yüklenmezse diye basit kaleci oluştur
-                if(!goalkeeper) createSimpleGoalkeeper(); 
                 resetBall();
             };
 
-            // --- TOPU YÜKLE ---
-            loader.load('Simple soccer football.glb', (gltf) => {
-                ballModel = gltf.scene;
-                ballModel.scale.set(BALL_SCALE, BALL_SCALE, BALL_SCALE); 
-                
-                // --- FIX: ŞEFFAFLIK SORUNU ---
-                ballModel.traverse((child) => {
-                    if (child.isMesh) {
-                        child.castShadow = true;
-                        // Materyali zorla opak yap
-                        child.material.transparent = false;
-                        child.material.opacity = 1.0;
-                        child.material.depthWrite = true;
-                        child.material.side = THREE.FrontSide;
-                    }
-                });
-
-                scene.add(ballModel);
-            }, undefined, (err) => console.error("Top yüklenemedi", err));
-
-            // --- KALEYİ YÜKLE ---
+            // --- KALE YÜKLEME VE ŞEFFAFLIK FIX ---
             loader.load('Soccer goal.glb', (gltf) => {
                 goalModel = gltf.scene;
                 goalModel.scale.set(GOAL_SCALE, GOAL_SCALE, GOAL_SCALE);
                 goalModel.position.set(0, 0, -20);
-                
-                // --- FIX: ŞEFFAFLIK SORUNU ---
+
+                // YENİ MATERYAL OLUŞTUR (Beyaz ve Katı)
+                const solidWhiteMat = new THREE.MeshStandardMaterial({
+                    color: 0xffffff,
+                    roughness: 0.4,
+                    metalness: 0.1,
+                    transparent: false, // Kesinlikle şeffaf değil
+                    opacity: 1.0,
+                    side: THREE.FrontSide
+                });
+
                 goalModel.traverse((child) => {
                     if (child.isMesh) {
                         child.castShadow = true;
                         child.receiveShadow = true;
-                        
-                        // Ağ kısmı hariç her şeyi opak yap
-                        // Eğer materyal adında "net" geçiyorsa yarı saydam bırakabiliriz
+
+                        // İsim kontrolü: Eğer "Net" (Ağ) değilse, bizim katı materyali bas
                         if (child.material.name.toLowerCase().includes('net')) {
+                            // Ağ ise şeffaf kalsın
                             child.material.transparent = true;
-                            child.material.opacity = 0.4;
+                            child.material.opacity = 0.3;
+                            child.material.side = THREE.DoubleSide;
                         } else {
-                            child.material.transparent = false;
-                            child.material.opacity = 1.0;
-                            child.material.depthWrite = true;
+                            // Direkler: Materyali tamamen değiştir
+                            child.material = solidWhiteMat;
                         }
                     }
                 });
-                
                 scene.add(goalModel);
-            }, undefined, (err) => console.error("Kale yüklenemedi", err));
+            }, undefined, (err) => console.error("Kale Hatası:", err));
+
+            // --- TOP YÜKLEME ---
+            loader.load('Simple soccer football.glb', (gltf) => {
+                ballModel = gltf.scene;
+                ballModel.scale.set(BALL_SCALE, BALL_SCALE, BALL_SCALE);
+                
+                // Topun materyalini de fixleyelim
+                ballModel.traverse(child => {
+                    if(child.isMesh) {
+                        child.castShadow = true;
+                        child.material.transparent = false;
+                        child.material.opacity = 1.0;
+                    }
+                });
+
+                scene.add(ballModel);
+                // İlk pozisyon
+                ballModel.position.copy(ballPhysics.pos);
+            }, undefined, (err) => console.error("Top Hatası:", err));
         }
 
-        function createSimpleGoalkeeper() {
-            // Kırmızı bir kutu kaleci
-            goalkeeper = new THREE.Group();
-            const mat = new THREE.MeshStandardMaterial({ color: 0xe53935, roughness: 0.2 });
-            const body = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.8, 0.4), mat);
-            body.position.y = 0.9;
-            body.castShadow = true;
-            goalkeeper.add(body);
-            goalkeeper.position.set(0, 0, -19);
-            scene.add(goalkeeper);
-        }
-
-        // --- KONTROLLER ---
+        // --- OYUN KONTROLLERİ ---
         function onKeyDown(e) {
             if (!isGameReady || isShooting) return;
-
-            if (e.code === 'ArrowLeft') {
-                aimX = Math.max(-1, aimX - 0.1);
-                updateAimInfo();
-            }
-            if (e.code === 'ArrowRight') {
-                aimX = Math.min(1, aimX + 0.1);
-                updateAimInfo();
-            }
-            if (e.code === 'Space') {
-                isPowering = true;
-            }
-            if (e.key.toLowerCase() === 'r') {
-                resetGame();
-            }
+            
+            if (e.code === 'ArrowLeft') { aimX = Math.max(-1, aimX - 0.1); updateAimUI(); }
+            if (e.code === 'ArrowRight') { aimX = Math.min(1, aimX + 0.1); updateAimUI(); }
+            if (e.code === 'Space') isPowering = true;
+            if (e.key.toLowerCase() === 'r') resetGame();
         }
 
         function onKeyUp(e) {
-            if (e.code === 'Space' && isPowering) {
-                shoot();
-            }
+            if (e.code === 'Space' && isPowering) shoot();
         }
 
-        function updateAimInfo() {
+        function updateAimUI() {
             const el = document.getElementById('aimInfo');
-            if (aimX < -0.2) el.textContent = "YÖN: SOL " + "◄".repeat(Math.abs(aimX)*5);
-            else if (aimX > 0.2) el.textContent = "YÖN: SAĞ " + "►".repeat(Math.abs(aimX)*5);
-            else el.textContent = "YÖN: ORTA";
+            const arrows = aimX < 0 ? "◄".repeat(Math.abs(aimX)*5) : "►".repeat(Math.abs(aimX)*5);
+            el.textContent = aimX === 0 ? "ORTA" : arrows;
+            el.style.color = aimX === 0 ? "#fff" : (aimX < 0 ? "#ff0055" : "#00e5ff");
             
-            // Kamerayı hafifçe nişan alınan yöne çevir
-            camera.position.x = aimX * 3;
-            camera.lookAt(0, 1, -15);
+            // Kamera hafif dönsün
+            camera.position.x = aimX * 2;
+            camera.lookAt(0, 2, -10);
         }
 
         function shoot() {
@@ -319,47 +293,38 @@
             attempts++;
             document.getElementById('attempts').textContent = attempts;
 
-            // --- FİZİK HESAPLAMASI (FALSO BURADA) ---
-            const powerFactor = power / 100; // 0 ile 1 arası
-            const speed = 0.5 + powerFactor * 0.7; // Hız
-            const lift = 0.15 + powerFactor * 0.35;  // Havalanma
-            
-            // Falso (Curve) Hesaplama
-            // Eğer sağa nişan aldıysan top sola kavis alır (veya tam tersi, isteğe bağlı)
-            // Burada basit mantık: Nişan aldığın yöne doğru gitsin ama falso da o yöne işlesin
-            const curveAmount = aimX * 0.015; // Falso miktarı
+            // FİZİK HESAPLAMA
+            const p = power / 100;
+            const speed = 0.5 + p * 0.7; // Hız
+            const lift = 0.1 + p * 0.4;  // Yükseklik
 
-            ballPhysics.vel.set(
-                aimX * 0.35, // İlk yatay çıkış hızı
-                lift,        // Yukarı hız
-                -speed       // İleri hız
-            );
-            
-            ballPhysics.curve = curveAmount; // Falsoyu sakla
+            // Falso Hesapla
+            const curve = aimX * 0.02; 
 
-            // Kaleci Reaksiyonu
+            ballPhysics.vel.set(aimX * 0.4, lift, -speed);
+            ballPhysics.curve = curve;
+
             reactGoalkeeper();
 
-            // UI
             power = 0;
             document.getElementById('powerFill').style.width = '0%';
         }
 
         function reactGoalkeeper() {
-            if(!goalkeeper) return;
-            // Kaleci topun gideceği yöne doğru atlasın
-            const targetX = aimX * 4 + (Math.random() - 0.5); // Hata payı ekle
+            // Kaleci yapay zekası
+            const targetX = aimX * 4 + (Math.random() - 0.5) * 1.5;
             
-            const jumpInterval = setInterval(() => {
-                if (!isShooting) { clearInterval(jumpInterval); return; }
+            const interval = setInterval(() => {
+                if(!isShooting) { clearInterval(interval); return; }
                 
-                // Kaleciyi hedefe doğru kaydır
-                goalkeeper.position.x += (targetX - goalkeeper.position.x) * 0.1;
+                // Hedefe git
+                goalkeeper.position.x += (targetX - goalkeeper.position.x) * 0.08;
                 
-                // Zıplama efekti
-                if (ballPhysics.pos.z < -10 && ballPhysics.pos.z > -18) {
-                    goalkeeper.position.y = 0.5 + Math.abs(Math.sin(Date.now() * 0.01)); 
-                    goalkeeper.rotation.z = -aimX * 0.5; // Yöne doğru yatma
+                // Top yaklaştığında zıpla
+                if(ballPhysics.pos.z < -12) {
+                    goalkeeper.position.y = 0.95 + Math.abs(Math.sin(Date.now() * 0.02)) * 0.8;
+                    // Yere yatma efekti
+                    goalkeeper.rotation.z = -aimX * 0.8; 
                 }
             }, 16);
         }
@@ -367,80 +332,73 @@
         function checkCollision() {
             const bp = ballPhysics.pos;
 
-            // 1. ZEMİNLE TEMAS
-            if (bp.y < 0.22) {
-                bp.y = 0.22;
-                ballPhysics.vel.y *= -0.65; // Zıplama
-                ballPhysics.vel.x *= 0.9;   // Sürtünme
+            // 1. ZEMİN (Top radius yaklaşık 0.5-0.6 arası sayılırsa)
+            if (bp.y < BALL_START_Y) {
+                bp.y = BALL_START_Y;
+                ballPhysics.vel.y *= -0.6; // Zıpla
+                ballPhysics.vel.x *= 0.9;
                 ballPhysics.vel.z *= 0.9;
-                ballPhysics.curve *= 0.5;   // Yere değince falso azalır
+                ballPhysics.curve *= 0.5;
             }
 
-            // 2. KALECİYLE TEMAS
-            if (goalkeeper) {
-                const dist = bp.distanceTo(goalkeeper.position);
-                if (dist < 1.5 && bp.z < -18 && bp.z > -20) {
-                    showMessage("KURTARDI!", "#00e5ff");
-                    ballPhysics.vel.z = 0.3; // Geri sektir
-                    ballPhysics.vel.y = 0.2;
-                    return true;
-                }
+            // 2. KALECİ
+            const dist = bp.distanceTo(goalkeeper.position);
+            if (dist < 1.8 && bp.z < -18 && bp.z > -20) {
+                showMessage("KURTARDI!", "#00ccff");
+                ballPhysics.vel.z = 0.5; // Geri dön
+                ballPhysics.vel.y = 0.3;
+                return true;
             }
 
-            // 3. GOL KONTROLÜ
-            if (bp.z < -20 && bp.z > -21) {
-                // Kale içi sınırları
-                if (Math.abs(bp.x) < 3.5 && bp.y < 2.4) {
+            // 3. GOL
+            if (bp.z < -20 && bp.z > -22) {
+                if (Math.abs(bp.x) < 3.6 && bp.y < 2.4) {
                     showMessage("GOOOL!", "#FFD700");
                     score++;
                     document.getElementById('score').textContent = score;
-                    ballPhysics.vel.multiplyScalar(0.2); // Ağlarda yavaşla
+                    ballPhysics.vel.multiplyScalar(0.2);
                     return true;
                 }
             }
-
-            // 4. DIŞARI GİTTİ
-            if (bp.z < -25 || Math.abs(bp.x) > 15) {
-                setTimeout(resetBall, 800);
+            
+            // 4. DIŞARI
+            if(bp.z < -25 || Math.abs(bp.x) > 15) {
+                setTimeout(resetBall, 1000);
                 return true;
             }
             return false;
         }
 
         function showMessage(text, color) {
-            const msg = document.getElementById('message');
-            msg.textContent = text;
-            msg.style.color = color;
-            msg.style.transform = "translate(-50%, -50%) scale(1)";
-            
+            const el = document.getElementById('message');
+            el.textContent = text;
+            el.style.color = color;
+            el.style.transform = "translate(-50%, -50%) scale(1)";
             setTimeout(() => {
-                msg.style.transform = "translate(-50%, -50%) scale(0)";
+                el.style.transform = "translate(-50%, -50%) scale(0)";
                 resetBall();
             }, 2000);
         }
 
         function resetBall() {
             isShooting = false;
-            // Topu başlangıca al
-            ballPhysics.pos.set(0, 0.22, 0);
-            ballPhysics.vel.set(0, 0, 0);
+            ballPhysics.pos.set(0, BALL_START_Y, 0);
+            ballPhysics.vel.set(0,0,0);
             ballPhysics.curve = 0;
             
-            if (ballModel) {
+            if(ballModel) {
                 ballModel.position.copy(ballPhysics.pos);
-                ballModel.rotation.set(0, 0, 0);
+                ballModel.rotation.set(0,0,0);
             }
-            
             if(goalkeeper) {
                 goalkeeper.position.set(0, 0, -19);
                 goalkeeper.rotation.set(0,0,0);
             }
             
-            // Kamerayı sıfırla
-            camera.position.copy(CAMERA_START_POS);
-            camera.lookAt(0, 1, -15);
+            camera.position.set(0, 3, 13);
+            camera.lookAt(0, 2, -15);
             aimX = 0;
-            updateAimInfo();
+            updateAimUI();
         }
 
         function resetGame() {
@@ -450,52 +408,32 @@
             resetBall();
         }
 
-        function onResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        }
-
         function animate() {
             requestAnimationFrame(animate);
-
             if (!isGameReady) return;
 
-            // Güç Barı Animasyonu
             if (isPowering) {
                 power += powerDir;
-                if (power >= 100 || power <= 0) powerDir *= -1;
+                if(power >= 100 || power <= 0) powerDir *= -1;
                 document.getElementById('powerFill').style.width = power + '%';
             }
 
-            // --- TOP HAREKETİ VE FALSO ---
             if (isShooting) {
-                // Yerçekimi
-                ballPhysics.vel.y -= 0.015;
+                ballPhysics.vel.y -= 0.015; // Yerçekimi
+                ballPhysics.vel.x += ballPhysics.curve; // Falso
                 
-                // FALSO (MAGNUS ETKİSİ): Hıza dik bir kuvvet uygula
-                // Basitçe: X hızına sürekli 'curve' değerini ekle
-                ballPhysics.vel.x += ballPhysics.curve;
-
-                // Konumu güncelle
                 ballPhysics.pos.add(ballPhysics.vel);
 
                 if (ballModel) {
                     ballModel.position.copy(ballPhysics.pos);
-                    
-                    // Görsel Dönüş Efekti (Top yuvarlanıyormuş veya dönüyormuş gibi)
-                    // Hız vektörüne göre döndür
-                    ballModel.rotation.x -= ballPhysics.vel.z; // İleri dönüş
-                    ballModel.rotation.y -= ballPhysics.curve * 5; // Yanlara falso dönüşü
+                    // Dönüş efekti
+                    ballModel.rotation.x -= ballPhysics.vel.z; 
+                    ballModel.rotation.y -= ballPhysics.curve * 3;
                 }
 
-                // Kamera Takibi (Daha akıcı)
-                const targetCamPos = new THREE.Vector3(
-                    ballPhysics.pos.x * 0.5, 
-                    Math.max(2, ballPhysics.pos.y + 1), 
-                    ballPhysics.pos.z + 8
-                );
-                camera.position.lerp(targetCamPos, 0.1);
+                // Kamera Takibi
+                camera.position.x += (ballPhysics.pos.x - camera.position.x) * 0.1;
+                camera.position.z = ballPhysics.pos.z + 8;
                 camera.lookAt(ballPhysics.pos);
 
                 checkCollision();

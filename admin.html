@@ -4,73 +4,193 @@
     <meta charset="UTF-8">
     <title>Sistem Yönetimi (Admin)</title>
     <style>
-        body { background: #0B0F19; color: white; font-family: sans-serif; padding: 40px; }
-        .header { border-bottom: 2px solid #EF4444; padding-bottom: 10px; margin-bottom: 20px; color: #EF4444; }
-        .panel { background: #1E293B; padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #334155; }
-        input { padding: 10px; border-radius: 5px; border: none; background: #0F172A; color: white; margin-right: 10px; }
-        button { padding: 10px 15px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; color: white; }
+        body { background: #0B0F19; color: white; font-family: 'Segoe UI', sans-serif; padding: 30px; margin: 0; }
+        .header { border-bottom: 2px solid #38BDF8; padding-bottom: 15px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center;}
+        .title { color: #38BDF8; font-size: 24px; font-weight: 900; letter-spacing: 1px; }
+        
+        .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .panel { background: #1E293B; padding: 25px; border-radius: 12px; border: 1px solid #334155; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .panel h3 { color: #E2E8F0; margin-bottom: 15px; font-size: 18px; border-bottom: 1px solid #334155; padding-bottom: 10px;}
+        
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; color: #94A3B8; font-size: 13px; margin-bottom: 5px; font-weight: bold; }
+        input, select { width: 100%; box-sizing: border-box; padding: 12px; border-radius: 8px; border: 1px solid #475569; background: #0F172A; color: white; outline: none; }
+        
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+        button { flex: 1; padding: 12px 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; transition: 0.2s; font-size: 14px;}
+        button:hover { filter: brightness(1.1); transform: translateY(-2px); }
+        
         .btn-vip { background: #F59E0B; }
+        .btn-admin { background: #7C3AED; }
         .btn-ban { background: #EF4444; }
-        #user-list { margin-top: 20px; background: #0F172A; padding: 15px; border-radius: 10px; }
+        .btn-unban { background: #22C55E; }
+        .btn-app { background: #38BDF8; }
+
+        #user-list { margin-top: 15px; max-height: 400px; overflow-y: auto; }
+        .user-card { background: #0F172A; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #334155; display: flex; justify-content: space-between; align-items: center;}
+        .user-card.banned { border-left-color: #EF4444; opacity: 0.8; }
+        .user-card.admin { border-left-color: #7C3AED; }
+        .user-card.vip { border-left-color: #F59E0B; }
+
+        /* ÖZEL BİLDİRİM (CUSTOM ALERT) */
+        .custom-alert { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(150%); background: #38BDF8; color: white; padding: 15px 30px; border-radius: 30px; font-weight: bold; box-shadow: 0 5px 20px rgba(0,0,0,0.5); transition: 0.4s; z-index: 9999; }
+        .custom-alert.show { transform: translateX(-50%) translateY(0); }
     </style>
 </head>
 <body>
 
-    <h1 class="header">🛡️ YÖNETİCİ PANELİ</h1>
-    
-    <div class="panel">
-        <h3>Kullanıcı İşlemleri</h3>
-        <p style="color: gray; font-size: 14px; margin-bottom: 15px;">İşlem yapmak istediğiniz kullanıcı adını girin.</p>
-        
-        <input type="text" id="target-user" placeholder="Kullanıcı Adı">
-        <button class="btn-vip" onclick="islemYap('vip')">💎 VIP Ver / Al</button>
-        <button class="btn-ban" onclick="islemYap('ban')">🔨 Ban At / Kaldır</button>
-    </div>
+    <div id="customAlert" class="custom-alert">İşlem Başarılı!</div>
 
-    <div class="panel">
-        <h3>Veritabanındaki Hesaplar</h3>
-        <button onclick="kullanicilariGetir()" style="background:#38BDF8;">Listeyi Yenile</button>
-        <div id="user-list">Listeyi görmek için yenileye bas.</div>
+    <div class="header">
+        <div class="title">🛡️ WINTER YÖNETİM MERKEZİ</div>
+        <button class="btn-app" style="flex: none; width: auto;" onclick="window.location.href='index.html'">Uygulamaya Git</button>
+    </div>
+    
+    <div class="grid-container">
+        <div class="panel">
+            <h3>⚙️ Kullanıcı İşlemleri</h3>
+            
+            <div class="input-group">
+                <label>Hedef Kullanıcı Adı</label>
+                <input type="text" id="target-user" placeholder="Kullanıcı adını yazın...">
+            </div>
+
+            <div class="btn-group" style="border-bottom: 1px solid #334155; padding-bottom: 20px; margin-bottom: 20px;">
+                <button class="btn-vip" onclick="islemYap('vip')">💎 VIP Ver/Al</button>
+                <button class="btn-admin" onclick="islemYap('admin')">👑 Admin Yap/Al</button>
+            </div>
+
+            <h3 style="border:none; color: #EF4444;">🔨 Ceza (Ban) Sistemi</h3>
+            
+            <div class="input-group">
+                <label>Ceza Sebebi</label>
+                <input type="text" id="ban-reason" placeholder="Örn: Hile kullanımı, Küfür...">
+            </div>
+
+            <div class="input-group">
+                <label>Ceza Süresi</label>
+                <select id="ban-time">
+                    <option value="1">1 Saat</option>
+                    <option value="24">1 Gün</option>
+                    <option value="168">1 Hafta</option>
+                    <option value="87600">Sınırsız (10 Yıl)</option>
+                </select>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn-ban" onclick="islemYap('ban')">Yasakla</button>
+                <button class="btn-unban" onclick="islemYap('unban')">Yasağı Kaldır</button>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; border: none;">👥 Kayıtlı Kullanıcılar</h3>
+                <button class="btn-app" style="width: auto; padding: 8px 15px;" onclick="kullanicilariGetir()">🔄 Yenile</button>
+            </div>
+            
+            <div id="user-list">Listeyi görmek için yenileye basın.</div>
+        </div>
     </div>
 
     <script>
-        // Sayfa açıldığında gerçekten admin mi diye kontrol et!
-        if(localStorage.getItem('activeUser') !== 'tutus' || localStorage.getItem('isAdmin') !== 'true') {
-            document.body.innerHTML = "<h1 style='color:red; text-align:center;'>YETKİSİZ GİRİŞ!</h1>";
-            setTimeout(() => { window.location.href = "login.html"; }, 2000);
+        // Sadece Adminler Girebilir!
+        if(localStorage.getItem('isAdmin') !== 'true' && localStorage.getItem('activeUser') !== 'tutus') {
+            document.body.innerHTML = "<h1 style='color:#EF4444; text-align:center; margin-top:50px;'>YETKİSİZ GİRİŞ!</h1>";
+            setTimeout(() => { window.location.href = "login.html"; }, 1500);
+        }
+
+        function showAlert(message, color = '#38BDF8') {
+            const alertBox = document.getElementById('customAlert');
+            alertBox.innerText = message;
+            alertBox.style.background = color;
+            alertBox.classList.add('show');
+            setTimeout(() => { alertBox.classList.remove('show'); }, 3000);
         }
 
         function islemYap(tip) {
             const target = document.getElementById('target-user').value.trim();
-            if(!target) return alert("Bir kullanıcı adı girin!");
+            if(!target) return showAlert("Lütfen bir kullanıcı adı girin!", "#EF4444");
 
             let db = JSON.parse(localStorage.getItem('winterDB')) || {};
-            
-            if(!db[target]) return alert("Veritabanında böyle bir kullanıcı yok!");
+            if(!db[target]) return showAlert("Veritabanında böyle bir kullanıcı yok!", "#EF4444");
+
+            // Kendi kendine yetki alıp vermeyi ve kurucuya dokunmayı engelle
+            if(target === "tutus") return showAlert("Kurucu hesaba müdahale edilemez!", "#EF4444");
 
             if(tip === 'vip') {
-                db[target].isVip = !db[target].isVip; // Durumu tersine çevir
-                alert(`${target} adlı kullanıcının VIP durumu: ${db[target].isVip ? 'AKTİF' : 'KAPALI'}`);
+                db[target].isVip = !db[target].isVip;
+                showAlert(`${target} VIP durumu: ${db[target].isVip ? 'AKTİF' : 'KAPALI'}`, '#F59E0B');
+            
+            } else if (tip === 'admin') {
+                db[target].isAdmin = !db[target].isAdmin;
+                showAlert(`${target} Admin durumu: ${db[target].isAdmin ? 'YETKİLENDİRİLDİ' : 'ALINDI'}`, '#7C3AED');
+            
             } else if (tip === 'ban') {
-                db[target].isBanned = !db[target].isBanned;
-                alert(`${target} adlı kullanıcının BAN durumu: ${db[target].isBanned ? 'BANLANDI' : 'KALDIRILDI'}`);
+                let sebep = document.getElementById('ban-reason').value.trim() || "Belirtilmedi";
+                let saat = parseInt(document.getElementById('ban-time').value);
+                
+                // Şuanın üzerine seçilen saati milisaniye olarak ekle
+                let bitisMilisaniye = Date.now() + (saat * 60 * 60 * 1000);
+
+                db[target].banInfo = {
+                    isBanned: true,
+                    reason: sebep,
+                    bannedAt: Date.now(),
+                    until: bitisMilisaniye
+                };
+                showAlert(`🔨 ${target} başarıyla yasaklandı!`, '#EF4444');
+            
+            } else if (tip === 'unban') {
+                if(db[target].banInfo) db[target].banInfo.isBanned = false;
+                showAlert(`✅ ${target} adlı kullanıcının yasağı kaldırıldı.`, '#22C55E');
             }
 
-            // Veritabanını kaydet
             localStorage.setItem('winterDB', JSON.stringify(db));
-            kullanicilariGetir(); // Listeyi güncelle
+            kullanicilariGetir(); // Listeyi anında yenile
         }
 
         function kullanicilariGetir() {
             let db = JSON.parse(localStorage.getItem('winterDB')) || {};
             let liste = "";
+            
             for (let user in db) {
-                let vipDurum = db[user].isVip ? "💎 VIP" : "Üye";
-                let banDurum = db[user].isBanned ? "❌ BANLI" : "Temiz";
-                liste += `<p><b>${user}</b> - Şifre: ${db[user].password} | Durum: ${vipDurum} | Sicil: ${banDurum}</p>`;
+                let acc = db[user];
+                
+                // Durum kontrolleri
+                let banliMi = acc.banInfo && acc.banInfo.isBanned;
+                let banSuresiDolmusMu = banliMi && Date.now() > acc.banInfo.until;
+                
+                // Eğer süre dolmuşsa DB'de düzelt
+                if(banSuresiDolmusMu) { banliMi = false; acc.banInfo.isBanned = false; }
+
+                // Kartın CSS sınıfını belirle (Rengini ayarlamak için)
+                let cardClass = "user-card";
+                if(banliMi) cardClass += " banned";
+                else if(acc.isAdmin) cardClass += " admin";
+                else if(acc.isVip) cardClass += " vip";
+
+                let rozetler = "";
+                if(acc.isAdmin) rozetler += "<span style='color:#7C3AED; font-weight:bold; font-size:12px; margin-right:5px;'>👑 ADMİN</span>";
+                if(acc.isVip) rozetler += "<span style='color:#F59E0B; font-weight:bold; font-size:12px; margin-right:5px;'>💎 VIP</span>";
+                if(banliMi) rozetler += "<span style='color:#EF4444; font-weight:bold; font-size:12px;'>🔨 BANNED</span>";
+
+                liste += `
+                    <div class="${cardClass}">
+                        <div>
+                            <div style="font-weight:bold; font-size:16px;">${user}</div>
+                            <div style="font-size:12px; color:#64748B;">Şifre: ${acc.password}</div>
+                        </div>
+                        <div>${rozetler}</div>
+                    </div>`;
             }
-            document.getElementById('user-list').innerHTML = liste || "Henüz kayıtlı kullanıcı yok.";
+            // Sadece listeyi güncelle, eğer değişen veri varsa DB'ye de kaydet
+            localStorage.setItem('winterDB', JSON.stringify(db));
+            document.getElementById('user-list').innerHTML = liste || "<div style='color:#94A3B8;'>Henüz kayıtlı kullanıcı yok.</div>";
         }
+        
+        // Sayfa açıldığında listeyi otomatik yükle
+        window.onload = kullanicilariGetir;
     </script>
 </body>
 </html>

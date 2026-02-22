@@ -6,38 +6,37 @@
     <title>WinterChat - Ana Merkez</title>
     <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
     <style>
+        /* Tüm eski CSS'ler aynen burada */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { height: 100vh; display: flex; background-color: #0F172A; color: #F8FAFC; overflow: hidden; }
-
         #auth-guard { position: fixed; top:0; left:0; width:100%; height:100%; background:#0F172A; z-index:9999; display:flex; justify-content:center; align-items:center; color:white; font-size:24px; }
-
-        /* SOL MENÜ - BAĞLANTILAR BURADA */
         .sidebar { width: 300px; background-color: #1E293B; display: flex; flex-direction: column; border-right: 1px solid #334155; z-index: 10; }
-        .logo-area { padding: 20px; font-size: 22px; font-weight: 900; letter-spacing: 1px; border-bottom: 1px solid #334155; }
+        .logo-area { padding: 20px; font-size: 22px; font-weight: 900; border-bottom: 1px solid #334155; }
         .logo-area span { color: #38BDF8; }
         .logo-area.vip span { color: #F59E0B; text-shadow: 0 0 10px rgba(245, 158, 11, 0.5); }
-
         .menu-items { padding: 15px 10px; display: flex; flex-direction: column; gap: 5px; border-bottom: 1px solid #334155;}
         .menu-btn { padding: 12px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; color: #94A3B8; display: flex; align-items: center; transition: 0.2s; font-size: 14px;}
-        .menu-btn:hover { background-color: #334155; color: white; }
-        .menu-btn.active { background-color: #38BDF8; color: white; }
-
+        .menu-btn:hover { background-color: #334155; color: white; } .menu-btn.active { background-color: #38BDF8; color: white; }
         .search-area { padding: 15px; border-bottom: 1px solid #334155; background: #0B0F19; }
         .search-box { display: flex; gap: 5px; }
         .search-box input { flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #475569; background: #1E293B; color: white; outline: none; }
         .search-box button { padding: 10px 15px; border-radius: 6px; border: none; background: #22C55E; color: white; font-weight: bold; cursor: pointer; }
-
         .friends-list { flex: 1; padding: 15px 10px; overflow-y: auto; }
-        .section-title { font-size: 12px; color: #94A3B8; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; padding-left: 5px; }
-        .friend-item { padding: 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.2s; margin-bottom: 5px; background: rgba(255,255,255,0.02);}
+        .section-title { font-size: 12px; color: #94A3B8; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; }
+        .friend-item { padding: 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.2s; background: rgba(255,255,255,0.02); margin-bottom:5px;}
         .friend-item:hover { background: rgba(255,255,255,0.05); }
-        .friend-avatar { width: 35px; height: 35px; border-radius: 50%; background: #38BDF8; display: flex; justify-content: center; align-items: center; font-weight: bold; color: white; }
+        
+        /* Avatar Sistemi İçin Güncellemeler */
+        .friend-avatar { width: 35px; height: 35px; border-radius: 50%; background: #38BDF8; display: flex; justify-content: center; align-items: center; font-weight: bold; color: white; overflow: hidden; border: 2px solid transparent;}
+        .friend-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .friend-avatar.vip-avatar { border-color: #F59E0B; box-shadow: 0 0 8px rgba(245, 158, 11, 0.5); }
 
-        .profile-area { padding: 15px; background-color: #0B0F19; display: flex; flex-direction: column; gap: 10px; border-top: 1px solid #334155; }
+        .profile-area { padding: 15px; background-color: #0B0F19; display: flex; align-items: center; gap: 15px; border-top: 1px solid #334155; }
+        .profile-details { flex: 1; }
         .user-name-display { font-size: 16px; font-weight: bold; color: white; text-transform: uppercase; }
         .vip-badge { display: none; background: #F59E0B; color: black; font-size: 10px; padding: 2px 5px; border-radius: 4px; font-weight: 900; }
-        .my-id-box { background: #1E293B; padding: 8px; border-radius: 6px; text-align: center; font-weight: bold; color: #38BDF8; border: 1px dashed #475569; cursor: pointer; font-size: 14px;}
-        .logout-btn { background: #EF4444; color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .my-id-box { background: #1E293B; padding: 5px; border-radius: 6px; text-align: center; font-weight: bold; color: #38BDF8; border: 1px dashed #475569; cursor: pointer; font-size: 12px; margin-top:5px;}
+        .logout-btn { background: #EF4444; color: white; border: none; padding: 6px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 5px; width: 100%;}
 
         .main-content { flex: 1; display: flex; flex-direction: column; background: #0F172A; }
         .connect-bar { padding: 15px 20px; background: #1E293B; display: flex; gap: 10px; align-items: center; border-bottom: 1px solid #334155; }
@@ -46,15 +45,22 @@
         .connect-bar button { padding: 10px 20px; border-radius: 6px; border: none; background: #38BDF8; color: white; font-weight: bold; cursor: pointer; }
         
         .chat-area { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
-        .msg { max-width: 65%; padding: 12px 16px; border-radius: 12px; font-size: 15px; line-height: 1.4; }
+        .msg { max-width: 65%; padding: 12px 16px; border-radius: 12px; font-size: 15px; line-height: 1.4; display: flex; flex-direction: column; }
         .msg.me { align-self: flex-end; background: #38BDF8; border-bottom-right-radius: 2px; }
         .msg.me.vip-msg { background: linear-gradient(45deg, #F59E0B, #D97706); box-shadow: 0 2px 10px rgba(245, 158, 11, 0.3); }
         .msg.other { align-self: flex-start; background: #334155; border-bottom-left-radius: 2px; }
-        .msg-sender { font-size: 11px; opacity: 0.7; display: block; margin-bottom: 5px; font-weight: bold; }
+        .msg-sender { font-size: 11px; opacity: 0.7; margin-bottom: 5px; font-weight: bold; }
+        .msg img { max-width: 100%; border-radius: 8px; margin-top: 5px; border: 1px solid rgba(255,255,255,0.2); }
 
-        .input-area { padding: 20px; background: #1E293B; display: flex; gap: 10px; border-top: 1px solid #334155;}
-        .input-area input { flex: 1; padding: 15px; border-radius: 10px; border: 1px solid #475569; background: #0F172A; color: white; outline: none; font-size: 15px;}
-        .input-area button { padding: 0 30px; border-radius: 10px; border: none; background: #38BDF8; color: white; font-weight: bold; cursor:pointer;}
+        .input-area { padding: 20px; background: #1E293B; display: flex; gap: 10px; border-top: 1px solid #334155; align-items: center;}
+        .input-area input[type="text"] { flex: 1; padding: 15px; border-radius: 10px; border: 1px solid #475569; background: #0F172A; color: white; outline: none; font-size: 15px;}
+        .input-area button { padding: 15px 30px; border-radius: 10px; border: none; background: #38BDF8; color: white; font-weight: bold; cursor:pointer;}
+        
+        /* VIP Medya Butonu */
+        .vip-media-btn { background: #F59E0B; color: black; font-size: 20px; padding: 10px 15px; border-radius: 10px; cursor: pointer; display: none; font-weight: bold;}
+        .vip-media-btn:hover { background: #D97706; }
+        #file-upload { display: none; }
+
         ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
 </head>
@@ -63,7 +69,6 @@
 
     <div class="sidebar">
         <div class="logo-area" id="logo">❄️ Winter<span>Chat</span></div>
-        
         <div class="menu-items">
             <div class="menu-btn active">💬 Sohbet & Bağlantı</div>
             <div class="menu-btn" onclick="window.location.href='news.html'">📰 Haberler & Duyurular</div>
@@ -83,12 +88,15 @@
         <div class="friends-list" id="friends-list-container"></div>
 
         <div class="profile-area">
-            <div>
-                <span class="user-name-display" id="display-username">Yükleniyor...</span>
-                <span class="vip-badge" id="myVipBadge">VIP</span>
+            <div class="friend-avatar" id="my-profile-pic">?</div>
+            <div class="profile-details">
+                <div>
+                    <span class="user-name-display" id="display-username">Yükleniyor...</span>
+                    <span class="vip-badge" id="myVipBadge">VIP</span>
+                </div>
+                <div class="my-id-box" id="my-id" onclick="copyId()" title="Kopyala">Yükleniyor...</div>
+                <button class="logout-btn" onclick="cikisYap()">Çıkış Yap</button>
             </div>
-            <div class="my-id-box" id="my-id" onclick="copyId()" title="Tıkla ve Kopyala">Yükleniyor...</div>
-            <button class="logout-btn" onclick="cikisYap()">Sistemden Çıkış Yap</button>
         </div>
     </div>
 
@@ -106,6 +114,10 @@
         </div>
 
         <div class="input-area">
+            <label class="vip-media-btn" id="vipMediaBtn" title="VIP Ayrıcalığı: Resim Gönder">
+                📎 <input type="file" id="file-upload" accept="image/*" onchange="sendImage(this)" disabled>
+            </label>
+            
             <input type="text" id="msg-input" placeholder="Mesajını buraya yaz..." onkeypress="handleEnter(event)" disabled>
             <button id="send-btn" onclick="sendMessage()" disabled>Gönder</button>
         </div>
@@ -115,27 +127,44 @@
         let activeUser = localStorage.getItem('activeUser');
         let isVIP = false;
         let db = JSON.parse(localStorage.getItem('winterDB')) || {};
+        let myAvatar = "";
 
         function guvenlikKontrolu() {
             if(!activeUser) { window.location.href = "login.html"; return; }
+            let accountInfo = db[activeUser] || {};
 
             if(localStorage.getItem('isAdmin') === 'true') {
                 isVIP = true; 
-                document.getElementById('adminPanelBtn').style.display = 'flex'; // Admine özel butonu aç!
+                document.getElementById('adminPanelBtn').style.display = 'flex';
             } else {
-                let accountInfo = db[activeUser];
-                if(!accountInfo || accountInfo.isBanned) { cikisYap(); return; }
+                if(accountInfo.isBanned) { cikisYap(); return; }
                 isVIP = accountInfo.isVip;
             }
+            
+            myAvatar = accountInfo.avatar || ""; // Varsa kendi resmini çek
             sistemiBaslat();
         }
 
         function sistemiBaslat() {
             document.getElementById('auth-guard').style.display = 'none';
             document.getElementById('display-username').innerText = activeUser;
+            
+            // Profil resmimizi ayarla
+            const myPicBox = document.getElementById('my-profile-pic');
+            if(myAvatar) {
+                myPicBox.innerHTML = `<img src="${myAvatar}">`;
+                if(isVIP) myPicBox.classList.add('vip-avatar');
+            } else {
+                myPicBox.innerText = activeUser.charAt(0).toUpperCase();
+            }
+
             if(isVIP) {
                 document.getElementById('myVipBadge').style.display = 'inline-block'; 
                 document.getElementById('logo').classList.add('vip'); 
+                
+                // VIP Medya Butonunu Aç!
+                document.getElementById('vipMediaBtn').style.display = 'block';
+                document.getElementById('file-upload').disabled = false;
             }
             arkadasListesiniCiz(); 
         }
@@ -166,11 +195,16 @@
             if(myFriends.length === 0) {
                 c.innerHTML += `<div style="color:#64748B; font-size:13px; text-align:center;">Henüz arkadaşın yok.</div>`; return;
             }
+            
             myFriends.forEach(f => {
-                let vip = db[f] && db[f].isVip;
+                let fData = db[f] || {};
+                let vip = fData.isVip;
+                let avatarHtml = fData.avatar ? `<img src="${fData.avatar}">` : f.charAt(0).toUpperCase();
+                let avatarClass = vip ? "friend-avatar vip-avatar" : "friend-avatar";
+
                 c.innerHTML += `
                     <div class="friend-item" onclick="alert('${f} adlı kişiden güncel kodunu (WNT-...) iste!')">
-                        <div class="friend-avatar">${f.charAt(0).toUpperCase()}</div>
+                        <div class="${avatarClass}">${avatarHtml}</div>
                         <div style="font-weight:bold; color:#E2E8F0;">${f} ${vip ? '💎' : ''}</div>
                     </div>`;
             });
@@ -178,13 +212,13 @@
 
         guvenlikKontrolu();
 
-        // P2P AĞ BAĞLANTISI
+        // P2P AĞ BAĞLANTISI VE SOHBET
         const myShortCode = 'WNT-' + Math.floor(1000 + Math.random() * 9000);
         const peer = new Peer(myShortCode); 
         let currentConnection = null;
 
         peer.on('open', (id) => { document.getElementById('my-id').innerText = id; });
-        function copyId() { navigator.clipboard.writeText(myShortCode); alert("Kod Kopyalandı!"); }
+        function copyId() { navigator.clipboard.writeText(myShortCode); alert("Bağlantı kodun kopyalandı!"); }
 
         peer.on('connection', (conn) => { currentConnection = conn; setupEvents(); });
 
@@ -201,10 +235,11 @@
                 document.getElementById('conn-status').style.color = "#22C55E";
                 document.getElementById('msg-input').disabled = false;
                 document.getElementById('send-btn').disabled = false;
-                document.getElementById('chat-box').innerHTML = `<div class="msg other" style="align-self:center; color:#22C55E; background: rgba(34, 197, 94, 0.1);">Sohbet Başladı!</div>`;
+                document.getElementById('chat-box').innerHTML = `<div class="msg other" style="align-self:center; color:#22C55E; background: rgba(34, 197, 94, 0.1);">Bağlantı Şifrelendi. Sohbet Başladı!</div>`;
             });
             currentConnection.on('data', (data) => {
                 if(data.type === 'chat') addMessage(data.sender, data.content, "other", data.isVip);
+                else if (data.type === 'image') addMessage(data.sender, `<img src="${data.content}">`, "other", data.isVip);
             });
         }
 
@@ -215,6 +250,21 @@
             currentConnection.send({ type: 'chat', content: text, isVip: isVIP, sender: activeUser });
             addMessage(activeUser, text, "me", isVIP);
             input.value = '';
+        }
+
+        // --- VIP RESİM GÖNDERME FONKSİYONU ---
+        function sendImage(inputElement) {
+            if(!isVIP) return alert("Bu özellik sadece VIP üyelere özeldir!");
+            const file = inputElement.files[0];
+            if(!file || !currentConnection) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imgData = e.target.result;
+                currentConnection.send({ type: 'image', content: imgData, isVip: isVIP, sender: activeUser });
+                addMessage(activeUser, `<img src="${imgData}">`, "me", isVIP);
+            };
+            reader.readAsDataURL(file); // Resmi koda çevirip PeerJS ile yollar
         }
 
         function handleEnter(e) { if(e.key === 'Enter') sendMessage(); }

@@ -3,87 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WinterChat - P2P</title>
+    <title>WinterChat v2.0 - Pro Edition</title>
     <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
     <style>
-        /* Kış Teması ve Genel Ayarlar */
+        /* Modern Kış Teması & Animasyonlar */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
         body { 
             height: 100vh; display: flex; justify-content: center; align-items: center; 
-            background: linear-gradient(135deg, #0B192C, #1A365D, #00A8E8); 
-            color: white; overflow: hidden; position: relative;
+            background: radial-gradient(circle at center, #1A365D 0%, #0B192C 100%); 
+            color: #f1f5f9; overflow: hidden; position: relative;
         }
 
-        /* Kar Yağışı Efekti İçin Kapsayıcı */
-        #snow-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
-        .snowflake { position: absolute; background: white; border-radius: 50%; opacity: 0.8; animation: fall linear infinite; }
-        @keyframes fall {
-            to { transform: translateY(100vh); }
-        }
+        /* Kar Efekti */
+        #snow-container { position: absolute; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+        .snowflake { position: absolute; background: white; border-radius: 50%; opacity: 0.6; animation: fall linear infinite; }
+        @keyframes fall { to { transform: translateY(100vh); } }
 
-        /* Şık Buzlu Cam (Glassmorphism) Tasarımı */
+        /* Ana Çerçeve */
         .app-container {
-            width: 900px; height: 600px; z-index: 10;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 20px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            width: 1050px; height: 650px; z-index: 10;
+            background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             display: flex; overflow: hidden;
         }
 
-        /* Sol Panel - Bağlantı ve Kontroller */
+        /* Sol Panel - Kontroller */
         .sidebar {
-            width: 300px; background: rgba(0, 0, 0, 0.2); padding: 20px;
-            display: flex; flex-direction: column; gap: 20px; border-right: 1px solid rgba(255,255,255,0.1);
+            width: 320px; background: rgba(0, 0, 0, 0.3); padding: 25px;
+            display: flex; flex-direction: column; gap: 20px; border-right: 1px solid rgba(255,255,255,0.05);
         }
-        .logo { font-size: 24px; font-weight: bold; text-align: center; color: #E0F2FE; text-shadow: 0 0 10px rgba(255,255,255,0.5); margin-bottom: 10px; }
+        .logo { font-size: 28px; font-weight: 800; text-align: center; color: #E0F2FE; letter-spacing: 1px; }
         .logo span { color: #38BDF8; }
         
-        .box { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); text-align: center;}
-        .box h3 { font-size: 14px; color: #BAE6FD; margin-bottom: 8px; text-transform: uppercase; }
-        .my-id { font-size: 18px; font-weight: bold; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; user-select: text; letter-spacing: 2px; }
+        .box { background: rgba(255,255,255,0.05); padding: 18px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); }
+        .box h3 { font-size: 13px; color: #94A3B8; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        .my-id { font-size: 22px; font-weight: bold; background: rgba(0,0,0,0.4); padding: 12px; border-radius: 10px; text-align: center; letter-spacing: 3px; color: #38BDF8; cursor: pointer; transition: 0.2s;}
+        .my-id:hover { background: rgba(0,0,0,0.6); }
         
-        input { width: 100%; padding: 12px; border-radius: 8px; border: none; background: rgba(255,255,255,0.9); color: #0f172a; font-weight: bold; outline: none; margin-bottom: 10px; }
+        input { width: 100%; padding: 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white; font-weight: bold; outline: none; margin-bottom: 12px; transition: 0.3s;}
+        input:focus { border-color: #38BDF8; background: rgba(0,0,0,0.4); }
+        
         button { 
-            width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;
-            background: linear-gradient(90deg, #0284C7, #0EA5E9); color: white; transition: 0.3s;
+            width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: bold; font-size: 15px; cursor: pointer;
+            background: #0284C7; color: white; transition: 0.2s;
         }
-        button:hover { background: linear-gradient(90deg, #0EA5E9, #38BDF8); box-shadow: 0 0 15px rgba(14, 165, 233, 0.5); }
-        button.call-btn { background: linear-gradient(90deg, #16A34A, #22C55E); margin-top: 10px; }
+        button:hover { background: #0369A1; transform: translateY(-2px); }
+        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
+        .btn-group button { font-size: 13px; padding: 10px; }
+        .btn-green { background: #16A34A; } .btn-green:hover { background: #15803D; }
+        .btn-purple { background: #7C3AED; } .btn-purple:hover { background: #6D28D9; }
 
-        /* Görüntülü Arama Videoları */
-        .video-container { display: flex; flex-direction: column; gap: 10px; margin-top: auto; }
-        video { width: 100%; border-radius: 10px; background: black; display: none; }
+        .video-container { display: flex; flex-direction: column; gap: 10px; margin-top: auto; position: relative;}
+        video { width: 100%; border-radius: 12px; background: #000; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        #my-video { position: absolute; width: 30%; bottom: 10px; right: 10px; border: 2px solid rgba(255,255,255,0.2); }
 
-        /* Sağ Panel - Sohbet Alanı */
-        .chat-area { flex: 1; display: flex; flex-direction: column; }
-        .chat-header { padding: 20px; background: rgba(0,0,0,0.2); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: bold; color: #E0F2FE;}
-        .messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        /* Sağ Panel - İçerik (Sohbet & Tahta) */
+        .content-area { flex: 1; display: flex; flex-direction: column; background: rgba(15, 23, 42, 0.2); }
         
-        .msg { max-width: 70%; padding: 12px 16px; border-radius: 15px; font-size: 15px; line-height: 1.4; word-wrap: break-word;}
-        .msg.me { align-self: flex-end; background: #0284C7; border-bottom-right-radius: 2px; }
-        .msg.other { align-self: flex-start; background: rgba(255,255,255,0.1); border-bottom-left-radius: 2px; border: 1px solid rgba(255,255,255,0.1); }
-        .msg img { max-width: 100%; border-radius: 8px; margin-top: 5px; }
+        /* Sekmeler */
+        .tabs { display: flex; background: rgba(0,0,0,0.2); border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .tab { flex: 1; padding: 18px; text-align: center; font-weight: bold; cursor: pointer; color: #94A3B8; transition: 0.3s; }
+        .tab:hover { color: white; background: rgba(255,255,255,0.02); }
+        .tab.active { color: #38BDF8; border-bottom: 2px solid #38BDF8; background: rgba(56, 189, 248, 0.05); }
 
-        .input-area { padding: 20px; background: rgba(0,0,0,0.2); display: flex; gap: 10px; align-items: center;}
-        .input-area input[type="text"] { flex: 1; margin: 0; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); }
-        .input-area input[type="text"]::placeholder { color: #94A3B8; }
-        .file-label { 
-            background: rgba(255,255,255,0.1); padding: 12px 15px; border-radius: 8px; cursor: pointer; 
-            border: 1px solid rgba(255,255,255,0.2); font-size: 18px;
-        }
-        .file-label:hover { background: rgba(255,255,255,0.2); }
+        /* Sohbet Ekranı */
+        #chat-section { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .messages { flex: 1; padding: 25px; overflow-y: auto; display: flex; flex-direction: column; gap: 18px; }
+        
+        .msg { max-width: 75%; padding: 14px 18px; border-radius: 18px; font-size: 15px; line-height: 1.5; box-shadow: 0 2px 5px rgba(0,0,0,0.1);}
+        .msg.me { align-self: flex-end; background: #0284C7; border-bottom-right-radius: 4px; }
+        .msg.other { align-self: flex-start; background: rgba(255,255,255,0.08); border-bottom-left-radius: 4px; border: 1px solid rgba(255,255,255,0.05); }
+        .msg img { max-width: 100%; border-radius: 10px; margin-top: 8px; }
+        .msg-time { font-size: 11px; opacity: 0.7; margin-top: 5px; text-align: right; }
+
+        .input-area { padding: 20px 25px; background: rgba(0,0,0,0.3); display: flex; gap: 12px; align-items: center;}
+        .file-label { background: rgba(255,255,255,0.05); padding: 14px; border-radius: 10px; cursor: pointer; transition: 0.2s; }
+        .file-label:hover { background: rgba(255,255,255,0.1); }
         #file-input { display: none; }
 
+        /* Taktik Tahtası Ekranı */
+        #board-section { flex: 1; display: none; flex-direction: column; padding: 20px; }
+        .board-controls { display: flex; gap: 10px; margin-bottom: 15px; }
+        .color-btn { width: 30px; height: 30px; border-radius: 50%; border: 2px solid white; cursor: pointer; }
+        canvas { flex: 1; background: rgba(0,0,0,0.4); border-radius: 12px; cursor: crosshair; border: 1px solid rgba(255,255,255,0.1); }
+
         /* Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
     </style>
 </head>
 <body>
-
     <div id="snow-container"></div>
 
     <div class="app-container">
@@ -91,15 +102,18 @@
             <div class="logo">❄️ Winter<span>Chat</span></div>
             
             <div class="box">
-                <h3>Senin Arkadaşlık Kodun</h3>
-                <div class="my-id" id="my-id">Yükleniyor...</div>
+                <h3>Senin Kodun (Tıkla Kopyala)</h3>
+                <div class="my-id" id="my-id" onclick="copyId()">Yükleniyor...</div>
             </div>
 
             <div class="box">
-                <h3>Arkadaşına Bağlan</h3>
+                <h3>Bağlantı Kur</h3>
                 <input type="text" id="friend-id-input" placeholder="Arkadaşının Kodunu Gir" autocomplete="off">
                 <button onclick="connectToFriend()">Sohbete Bağlan</button>
-                <button class="call-btn" onclick="startVideoCall()">Görüntülü Ara</button>
+                <div class="btn-group">
+                    <button class="btn-green" onclick="startVideoCall()">Kamera Aç</button>
+                    <button class="btn-purple" onclick="startScreenShare()">Ekran Paylaş</button>
+                </div>
             </div>
 
             <div class="video-container">
@@ -108,170 +122,235 @@
             </div>
         </div>
 
-        <div class="chat-area">
-            <div class="chat-header" id="status-text">Durum: Bağlantı Bekleniyor...</div>
-            
-            <div class="messages" id="chat-box">
-                <div class="msg other">Sisteme hoş geldin! Sol taraftaki kodunu arkadaşına gönder veya onun kodunu girerek bağlan.</div>
+        <div class="content-area">
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('chat')">💬 Sohbet</div>
+                <div class="tab" onclick="switchTab('board')">🗺️ Ortak Taktik Tahtası</div>
             </div>
 
-            <div class="input-area">
-                <label class="file-label">
-                    📷 <input type="file" id="file-input" accept="image/*" onchange="sendImage(this)">
-                </label>
-                <input type="text" id="msg-input" placeholder="Mesajınızı yazın..." onkeypress="handleEnter(event)">
-                <button style="width: auto; padding: 12px 25px;" onclick="sendMessage()">Gönder</button>
+            <div id="chat-section">
+                <div class="messages" id="chat-box">
+                    <div class="msg other" style="align-self: center; background: transparent; border: none; opacity: 0.5;">
+                        Bağlantı bekleniyor...
+                    </div>
+                </div>
+                <div class="input-area">
+                    <label class="file-label" title="Resim/Dosya Gönder">
+                        📎 <input type="file" id="file-input" onchange="sendFile(this)">
+                    </label>
+                    <input type="text" id="msg-input" placeholder="Mesaj gönder..." onkeypress="handleEnter(event)">
+                    <button style="width: 100px;" onclick="sendMessage()">Gönder</button>
+                </div>
+            </div>
+
+            <div id="board-section">
+                <div class="board-controls">
+                    <div class="color-btn" style="background: #ef4444;" onclick="changeColor('#ef4444')"></div>
+                    <div class="color-btn" style="background: #3b82f6;" onclick="changeColor('#3b82f6')"></div>
+                    <div class="color-btn" style="background: #22c55e;" onclick="changeColor('#22c55e')"></div>
+                    <div class="color-btn" style="background: #eab308;" onclick="changeColor('#eab308')"></div>
+                    <div class="color-btn" style="background: #ffffff;" onclick="changeColor('#ffffff')"></div>
+                    <button style="width: auto; padding: 5px 15px; margin-left: auto;" onclick="clearBoard()">Tahtayı Temizle</button>
+                </div>
+                <canvas id="tactic-board"></canvas>
             </div>
         </div>
     </div>
 
     <script>
-        // --- 1. KAR YAĞIŞI SİSTEMİ ---
+        // --- KAR EFEKTİ ---
         function createSnow() {
             const container = document.getElementById('snow-container');
-            for(let i=0; i<50; i++) {
+            for(let i=0; i<60; i++) {
                 let flake = document.createElement('div');
                 flake.className = 'snowflake';
-                let size = Math.random() * 5 + 2; // 2px - 7px arası
-                flake.style.width = size + 'px';
-                flake.style.height = size + 'px';
+                let size = Math.random() * 4 + 2;
+                flake.style.width = size + 'px'; flake.style.height = size + 'px';
                 flake.style.left = Math.random() * 100 + 'vw';
-                flake.style.animationDuration = Math.random() * 3 + 2 + 's'; // Düşme hızı
+                flake.style.animationDuration = Math.random() * 3 + 3 + 's';
                 flake.style.animationDelay = Math.random() * 2 + 's';
                 container.appendChild(flake);
             }
         }
         createSnow();
 
-        // --- 2. P2P AĞ BAĞLANTISI (PEERJS) ---
-        // Rastgele kısa bir kod üretir (Örn: WNTR-A1B2)
-        const myShortCode = 'WNTR-' + Math.random().toString(36).substr(2, 4).toUpperCase();
-        
-        // PeerJS sunucusuna bağlanıyoruz
+        // --- SEKME DEĞİŞTİRME ---
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('chat-section').style.display = tabName === 'chat' ? 'flex' : 'none';
+            document.getElementById('board-section').style.display = tabName === 'board' ? 'flex' : 'none';
+            if(tabName === 'board') resizeCanvas(); // Tahta açılınca boyutunu ayarla
+        }
+
+        // --- P2P AĞ BAĞLANTISI ---
+        const myShortCode = 'WNTR-' + Math.floor(1000 + Math.random() * 9000); // Örn: WNTR-4829
         const peer = new Peer(myShortCode); 
         let currentConnection = null;
-        let myVideoStream = null;
+        let myStream = null;
 
-        // Kodumuz hazır olduğunda ekrana yazdır
         peer.on('open', (id) => {
             document.getElementById('my-id').innerText = id;
         });
 
-        // --- 3. BİRİ BİZE BAĞLANDIĞINDA ---
+        function copyId() {
+            navigator.clipboard.writeText(document.getElementById('my-id').innerText);
+            alert("Arkadaşlık kodun kopyalandı!");
+        }
+
+        // --- BAĞLANTI OLAYLARI ---
         peer.on('connection', (conn) => {
             currentConnection = conn;
-            setupConnectionEvents();
+            setupEvents();
         });
 
-        // Biri bizi görüntülü aradığında
-        peer.on('call', async (call) => {
-            if(confirm("Arkadaşın seni görüntülü arıyor, açmak ister misin?")) {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                showMyVideo(stream);
-                call.answer(stream); // Aramayı cevapla ve kendi görüntünü yolla
-                
-                call.on('stream', (otherStream) => {
-                    showOtherVideo(otherStream);
-                });
-            }
-        });
-
-        // --- 4. BİZ BİRİNE BAĞLANDIĞIMIZDA ---
         function connectToFriend() {
-            const friendId = document.getElementById('friend-id-input').value.trim();
-            if (!friendId) return alert("Lütfen geçerli bir kod girin!");
-            
-            document.getElementById('status-text').innerText = "Bağlanılıyor...";
+            const friendId = document.getElementById('friend-id-input').value.trim().toUpperCase();
+            if (!friendId) return;
             currentConnection = peer.connect(friendId);
-            setupConnectionEvents();
+            setupEvents();
         }
 
-        // Bağlantı başarılıysa çalışacak komutlar
-        function setupConnectionEvents() {
+        function setupEvents() {
             currentConnection.on('open', () => {
-                document.getElementById('status-text').innerText = "🟢 Bağlandı: " + currentConnection.peer;
-                addMessage("Sistem", "Bağlantı kuruldu! Sohbet edebilirsiniz.", "other");
+                document.getElementById('chat-box').innerHTML = `<div class="msg other" style="align-self:center; background:#16A34A;">🟢 Bağlantı Kuruldu!</div>`;
             });
 
-            // Karşıdan mesaj veya resim geldiğinde
             currentConnection.on('data', (data) => {
-                if(data.type === 'text') {
-                    addMessage("Arkadaş", data.content, "other");
-                } else if(data.type === 'image') {
-                    addMessage("Arkadaş", `<img src="${data.content}">`, "other");
-                }
+                if(data.type === 'chat') addMessage("Arkadaş", data.content, "other", data.time);
+                else if(data.type === 'draw') drawOnCanvas(data.x, data.y, data.color, false);
+                else if(data.type === 'startDraw') { ctx.beginPath(); ctx.moveTo(data.x, data.y); }
+                else if(data.type === 'clearBoard') ctx.clearRect(0, 0, canvas.width, canvas.height);
             });
         }
 
-        // --- 5. MESAJ VE RESİM GÖNDERME ---
+        // --- SOHBET SİSTEMİ ---
+        function getTime() {
+            const now = new Date();
+            return now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+        }
+
         function sendMessage() {
             const input = document.getElementById('msg-input');
             const text = input.value.trim();
             if(!text || !currentConnection) return;
 
-            // Karşıya gönder
-            currentConnection.send({ type: 'text', content: text });
-            // Kendi ekranımıza ekle
-            addMessage("Sen", text, "me");
+            const time = getTime();
+            currentConnection.send({ type: 'chat', content: text, time: time });
+            addMessage("Sen", text, "me", time);
             input.value = '';
         }
 
-        function handleEnter(e) {
-            if(e.key === 'Enter') sendMessage();
-        }
+        function handleEnter(e) { if(e.key === 'Enter') sendMessage(); }
 
-        function sendImage(input) {
+        function sendFile(input) {
             const file = input.files[0];
             if(!file || !currentConnection) return;
-
             const reader = new FileReader();
             reader.onload = function(e) {
-                const base64Image = e.target.result;
-                // Resmi karşıya gönder
-                currentConnection.send({ type: 'image', content: base64Image });
-                // Kendi ekranımıza ekle
-                addMessage("Sen", `<img src="${base64Image}">`, "me");
+                const dataUrl = e.target.result;
+                const content = file.type.startsWith('image/') ? `<img src="${dataUrl}">` : `📄 Dosya Gönderildi: ${file.name}`;
+                const time = getTime();
+                currentConnection.send({ type: 'chat', content: content, time: time });
+                addMessage("Sen", content, "me", time);
             };
-            reader.readAsDataURL(file); // Resmi koda çevirip yollar (P2P için şart)
+            reader.readAsDataURL(file);
         }
 
-        // Ekrana baloncuğu çizen fonksiyon
-        function addMessage(sender, content, type) {
+        function addMessage(sender, content, type, time) {
             const box = document.getElementById('chat-box');
-            box.innerHTML += `<div class="msg ${type}">${content}</div>`;
+            box.innerHTML += `
+                <div class="msg ${type}">
+                    <div>${content}</div>
+                    <div class="msg-time">${time}</div>
+                </div>`;
             box.scrollTop = box.scrollHeight;
         }
 
-        // --- 6. GÖRÜNTÜLÜ ARAMA BAŞLATMA ---
-        async function startVideoCall() {
-            if(!currentConnection) return alert("Önce arkadaşınızın koduna bağlanmalısınız!");
-            
-            try {
-                // Kamera ve mikrofon izni iste
+        // --- GÖRÜNTÜ VE EKRAN PAYLAŞIMI ---
+        peer.on('call', async (call) => {
+            if(confirm("Gelen bir arama/ekran paylaşımı var, kabul ediyor musun?")) {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                showMyVideo(stream);
-                
-                const call = peer.call(currentConnection.peer, stream);
-                
+                document.getElementById('my-video').srcObject = stream;
+                call.answer(stream);
                 call.on('stream', (otherStream) => {
-                    showOtherVideo(otherStream);
+                    document.getElementById('other-video').srcObject = otherStream;
                 });
-            } catch (err) {
-                alert("Kamera/Mikrofon izni verilmedi veya cihaz bulunamadı!");
             }
+        });
+
+        async function startVideoCall() {
+            if(!currentConnection) return alert("Önce bağlanmalısın!");
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            makeCall(stream);
         }
 
-        function showMyVideo(stream) {
-            myVideoStream = stream;
-            const video = document.getElementById('my-video');
-            video.style.display = 'block';
-            video.srcObject = stream;
+        async function startScreenShare() {
+            if(!currentConnection) return alert("Önce bağlanmalısın!");
+            const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+            makeCall(stream);
         }
 
-        function showOtherVideo(stream) {
-            const video = document.getElementById('other-video');
-            video.style.display = 'block';
-            video.srcObject = stream;
+        function makeCall(stream) {
+            document.getElementById('my-video').srcObject = stream;
+            const call = peer.call(currentConnection.peer, stream);
+            call.on('stream', (otherStream) => {
+                document.getElementById('other-video').srcObject = otherStream;
+            });
+        }
+
+        // --- İNTERAKTİF TAKTİK TAHTASI (CANVAS) ---
+        const canvas = document.getElementById('tactic-board');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+        let brushColor = '#ef4444';
+
+        function resizeCanvas() {
+            canvas.width = canvas.parentElement.clientWidth - 40;
+            canvas.height = canvas.parentElement.clientHeight - 80;
+        }
+        window.onresize = resizeCanvas;
+
+        function changeColor(color) { brushColor = color; }
+
+        function clearBoard() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if(currentConnection) currentConnection.send({ type: 'clearBoard' });
+        }
+
+        function getMousePos(evt) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: (evt.clientX - rect.left) / (rect.right - rect.left) * canvas.width,
+                y: (evt.clientY - rect.top) / (rect.bottom - rect.top) * canvas.height
+            };
+        }
+
+        canvas.addEventListener('mousedown', (e) => {
+            isDrawing = true;
+            const pos = getMousePos(e);
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+            if(currentConnection) currentConnection.send({ type: 'startDraw', x: pos.x, y: pos.y });
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isDrawing) return;
+            const pos = getMousePos(e);
+            drawOnCanvas(pos.x, pos.y, brushColor, true);
+        });
+
+        canvas.addEventListener('mouseup', () => isDrawing = false);
+        canvas.addEventListener('mouseout', () => isDrawing = false);
+
+        function drawOnCanvas(x, y, color, emit) {
+            ctx.lineWidth = 3;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = color;
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            if (!emit || !currentConnection) return;
+            currentConnection.send({ type: 'draw', x: x, y: y, color: color });
         }
     </script>
 </body>

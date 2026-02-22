@@ -3,226 +3,230 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WinterChat v3 - VIP Sürümü</title>
+    <title>WinterChat - Ana Merkez</title>
     <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
     <style>
-        /* Modern, Karanlık Tema ve Animasyonlar */
+        /* Modern Karanlık Tema ve Düzen */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { 
-            height: 100vh; display: flex; background-color: #0F172A; color: #F8FAFC; overflow: hidden;
-        }
+        body { height: 100vh; display: flex; background-color: #0F172A; color: #F8FAFC; overflow: hidden; }
 
-        /* --- SOL MENÜ (KOLAY NAVİGASYON) --- */
-        .sidebar {
-            width: 280px; background-color: #1E293B; display: flex; flex-direction: column; 
-            border-right: 1px solid #334155; z-index: 10;
-        }
-        .logo-area { padding: 25px 20px; font-size: 24px; font-weight: 900; letter-spacing: 1px; border-bottom: 1px solid #334155; }
+        /* GÜVENLİK DUVARI */
+        #auth-guard { position: fixed; top:0; left:0; width:100%; height:100%; background:#0F172A; z-index:9999; display:flex; justify-content:center; align-items:center; color:white; font-size:24px; }
+
+        /* SOL MENÜ (Kişiler ve Arama) */
+        .sidebar { width: 300px; background-color: #1E293B; display: flex; flex-direction: column; border-right: 1px solid #334155; z-index: 10; }
+        .logo-area { padding: 20px; font-size: 22px; font-weight: 900; letter-spacing: 1px; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center;}
         .logo-area span { color: #38BDF8; }
-        .logo-area.vip span { color: #F59E0B; text-shadow: 0 0 10px rgba(245, 158, 11, 0.5); } /* VIP Rengi */
+        .logo-area.vip span { color: #F59E0B; text-shadow: 0 0 10px rgba(245, 158, 11, 0.5); }
 
-        .menu-items { flex: 1; padding: 20px 10px; display: flex; flex-direction: column; gap: 5px; }
-        .menu-btn {
-            padding: 15px 20px; border-radius: 12px; cursor: pointer; font-weight: bold; color: #94A3B8; 
-            display: flex; align-items: center; gap: 10px; transition: 0.2s;
-        }
-        .menu-btn:hover { background-color: #334155; color: white; }
-        .menu-btn.active { background-color: #38BDF8; color: white; }
+        /* Arama ve Ekleme Alanı */
+        .search-area { padding: 15px; border-bottom: 1px solid #334155; background: #0B0F19; }
+        .search-box { display: flex; gap: 5px; }
+        .search-box input { flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #475569; background: #1E293B; color: white; outline: none; }
+        .search-box button { padding: 10px 15px; border-radius: 6px; border: none; background: #22C55E; color: white; font-weight: bold; cursor: pointer; transition: 0.2s;}
+        .search-box button:hover { background: #16A34A; }
+
+        /* Arkadaşlar Listesi */
+        .friends-list { flex: 1; padding: 15px 10px; overflow-y: auto; }
+        .section-title { font-size: 12px; color: #94A3B8; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; padding-left: 5px; }
+        .friend-item { padding: 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.2s; margin-bottom: 5px; background: rgba(255,255,255,0.02);}
+        .friend-item:hover { background: rgba(255,255,255,0.05); }
+        .friend-avatar { width: 35px; height: 35px; border-radius: 50%; background: #38BDF8; display: flex; justify-content: center; align-items: center; font-weight: bold; color: white; }
+        .friend-name { font-weight: bold; color: #E2E8F0; }
+
+        /* Alt Profil Alanı */
+        .profile-area { padding: 15px; background-color: #0B0F19; display: flex; flex-direction: column; gap: 10px; border-top: 1px solid #334155; }
+        .user-name-display { font-size: 16px; font-weight: bold; color: white; text-transform: uppercase; }
+        .vip-badge { display: none; background: #F59E0B; color: black; font-size: 10px; padding: 2px 5px; border-radius: 4px; font-weight: 900; }
+        .my-id-box { background: #1E293B; padding: 8px; border-radius: 6px; text-align: center; font-weight: bold; color: #38BDF8; border: 1px dashed #475569; cursor: pointer; font-size: 14px;}
+        .logout-btn { background: #EF4444; color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+
+        /* ANA SOHBET ALANI */
+        .main-content { flex: 1; display: flex; flex-direction: column; background: #0F172A; }
         
-        /* Nitro/VIP Butonu Özel Tasarım */
-        .menu-btn.premium-btn { 
-            background: linear-gradient(45deg, #F59E0B, #D97706); color: white; 
-            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3); margin-top: auto; animation: pulse 2s infinite;
-        }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
-
-        /* Kullanıcı Profili (Sol Alt) */
-        .profile-area { padding: 20px; background-color: #0F172A; display: flex; flex-direction: column; gap: 10px; border-top: 1px solid #334155; }
-        .my-id-box { 
-            background: #1E293B; padding: 10px; border-radius: 8px; text-align: center; font-weight: bold; 
-            letter-spacing: 2px; color: #38BDF8; border: 1px dashed #475569; cursor: pointer;
-        }
-        .vip-badge { display: none; background: #F59E0B; color: black; font-size: 10px; padding: 2px 6px; border-radius: 4px; vertical-align: middle; margin-left: 5px; font-weight: 900;}
-
-        /* --- ANA İÇERİK ALANI --- */
-        .main-content { flex: 1; display: flex; flex-direction: column; position: relative; }
+        /* Bağlantı Çubuğu (P2P) */
+        .connect-bar { padding: 15px 20px; background: #1E293B; display: flex; gap: 10px; align-items: center; border-bottom: 1px solid #334155; }
+        .connect-info { color: #94A3B8; font-size: 14px; margin-right: auto; }
+        .connect-bar input { width: 200px; padding: 10px; border-radius: 6px; border: 1px solid #475569; background: #0F172A; color: white; outline: none; }
+        .connect-bar button { padding: 10px 20px; border-radius: 6px; border: none; background: #38BDF8; color: white; font-weight: bold; cursor: pointer; }
         
-        /* Reklam Alanı (Google AdSense için yer) */
-        .ad-banner {
-            background-color: #1E293B; border-bottom: 1px solid #334155; padding: 10px;
-            display: flex; justify-content: center; align-items: center; height: 60px;
-            color: #64748B; font-size: 14px; font-weight: bold; letter-spacing: 2px;
-        }
-
-        /* Sayfalar (Sekmeler) */
-        .page { display: none; flex: 1; flex-direction: column; overflow: hidden; }
-        .page.active { display: flex; }
-
-        /* -- 1. BAĞLANTI & SOHBET SAYFASI -- */
-        .connect-bar { padding: 20px; background: #1E293B; display: flex; gap: 10px; align-items: center; border-bottom: 1px solid #334155; }
-        .connect-bar input { flex: 1; padding: 12px; border-radius: 8px; border: none; background: #0F172A; color: white; outline: none; }
-        .connect-bar button { padding: 12px 25px; border-radius: 8px; border: none; background: #38BDF8; color: white; font-weight: bold; cursor: pointer; transition: 0.2s;}
-        .connect-bar button:hover { background: #0284C7; }
-
+        /* Mesajlaşma Ekranı */
         .chat-area { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
-        .msg { max-width: 70%; padding: 12px 16px; border-radius: 12px; font-size: 15px; line-height: 1.4; }
+        .msg { max-width: 65%; padding: 12px 16px; border-radius: 12px; font-size: 15px; line-height: 1.4; position: relative;}
         .msg.me { align-self: flex-end; background: #38BDF8; border-bottom-right-radius: 2px; }
-        .msg.me.vip-msg { background: linear-gradient(45deg, #F59E0B, #D97706); box-shadow: 0 2px 10px rgba(245, 158, 11, 0.3); } /* VIP Mesaj Rengi */
+        .msg.me.vip-msg { background: linear-gradient(45deg, #F59E0B, #D97706); box-shadow: 0 2px 10px rgba(245, 158, 11, 0.3); }
         .msg.other { align-self: flex-start; background: #334155; border-bottom-left-radius: 2px; }
+        .msg-sender { font-size: 11px; opacity: 0.7; display: block; margin-bottom: 5px; font-weight: bold; }
 
-        .input-area { padding: 20px; background: #1E293B; display: flex; gap: 10px; }
-        .input-area input { flex: 1; padding: 15px; border-radius: 10px; border: none; background: #0F172A; color: white; outline: none; }
+        /* Mesaj Gönderme Kutusu */
+        .input-area { padding: 20px; background: #1E293B; display: flex; gap: 10px; border-top: 1px solid #334155;}
+        .input-area input { flex: 1; padding: 15px; border-radius: 10px; border: 1px solid #475569; background: #0F172A; color: white; outline: none; font-size: 15px;}
+        .input-area button { padding: 0 30px; border-radius: 10px; border: none; background: #38BDF8; color: white; font-weight: bold; cursor:pointer; transition: 0.2s;}
+        .input-area button:hover { background: #0284C7; }
 
-        /* -- 2. FROST VIP (SATIN ALMA) SAYFASI -- */
-        .vip-page-content { padding: 40px; text-align: center; overflow-y: auto; }
-        .vip-title { font-size: 36px; font-weight: 900; color: #F59E0B; margin-bottom: 20px; }
-        .vip-cards { display: flex; justify-content: center; gap: 30px; margin-top: 40px; }
-        .vip-card { 
-            background: #1E293B; padding: 30px; border-radius: 20px; width: 300px; 
-            border: 2px solid #334155; transition: 0.3s;
-        }
-        .vip-card:hover { border-color: #F59E0B; transform: translateY(-10px); }
-        .vip-price { font-size: 40px; font-weight: bold; margin: 20px 0; color: white; }
-        .vip-features { text-align: left; margin-bottom: 30px; line-height: 2; color: #CBD5E1; }
-        .buy-btn { width: 100%; padding: 15px; border-radius: 10px; border: none; background: #F59E0B; color: black; font-size: 18px; font-weight: bold; cursor: pointer; }
-
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
 </head>
 <body>
 
+    <div id="auth-guard">Kimlik doğrulanıyor...</div>
+
     <div class="sidebar">
-        <div class="logo-area" id="logo">❄️ Winter<span>Chat</span></div>
-        
-        <div class="menu-items">
-            <div class="menu-btn active" onclick="changePage('chatPage', this)">💬 Sohbet & Bağlantı</div>
-            <div class="menu-btn" onclick="changePage('boardPage', this)">🗺️ Taktik Tahtası</div>
-            <div class="menu-btn premium-btn" id="vipMenuBtn" onclick="changePage('vipPage', this)">💎 Frost VIP Al</div>
+        <div class="logo-area" id="logo">
+            <div>❄️ Winter<span>Chat</span></div>
         </div>
 
+        <div class="search-area">
+            <div class="section-title">Kullanıcı Ara & Ekle</div>
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Kullanıcı adı yaz...">
+                <button onclick="arkadasEkle()">Ekle</button>
+            </div>
+        </div>
+        
+        <div class="friends-list" id="friends-list-container">
+            <div class="section-title">Arkadaşlarım</div>
+            </div>
+
         <div class="profile-area">
-            <div style="font-size: 12px; color: #94A3B8;">Senin Kodun:</div>
-            <div class="my-id-box" id="my-id" onclick="copyId()">Yükleniyor...</div>
-            <div style="font-size: 14px; font-weight: bold; margin-top: 10px;">
-                Durum: <span id="conn-status" style="color: #EF4444;">Bağlı Değil</span>
+            <div>
+                <span class="user-name-display" id="display-username">Yükleniyor...</span>
                 <span class="vip-badge" id="myVipBadge">VIP</span>
             </div>
+            <div style="font-size: 12px; color: #94A3B8; margin-top:5px;">Senin Bağlantı Kodun (Tıkla):</div>
+            <div class="my-id-box" id="my-id" onclick="copyId()">Yükleniyor...</div>
+            <button class="logout-btn" onclick="cikisYap()">Sistemden Çıkış Yap</button>
         </div>
     </div>
 
     <div class="main-content">
         
-        <div class="ad-banner" id="adBanner">
-            [GOOGLE ADSENSE REKLAM ALANI - Tıklama Başına Para Kazan]
+        <div class="connect-bar">
+            <div class="connect-info" id="conn-status">🔴 Şu an kimseye bağlı değilsin.</div>
+            <input type="text" id="friend-id-input" placeholder="WNT-XXXX (Kod Gir)">
+            <button onclick="connectToFriend()">Bağlan</button>
         </div>
-
-        <div id="chatPage" class="page active">
-            <div class="connect-bar">
-                <input type="text" id="friend-id-input" placeholder="Arkadaşının Kodunu Gir...">
-                <button onclick="connectToFriend()">Bağlan</button>
-            </div>
-            
-            <div class="chat-area" id="chat-box">
-                <div class="msg other" style="align-self: center; background: transparent;">Bağlantı Bekleniyor...</div>
-            </div>
-
-            <div class="input-area">
-                <input type="text" id="msg-input" placeholder="Mesaja yaz..." onkeypress="handleEnter(event)">
-                <button onclick="sendMessage()" style="padding: 0 25px; border-radius: 10px; border: none; background: #38BDF8; color: white; font-weight: bold; cursor:pointer;">Gönder</button>
+        
+        <div class="chat-area" id="chat-box">
+            <div class="msg other" style="align-self: center; background: transparent; color: #64748B;">
+                Mesajlaşmaya başlamak için arkadaşının anlık bağlantı kodunu (WNT-XXXX) girmelisin.
             </div>
         </div>
 
-        <div id="boardPage" class="page">
-            <div style="padding: 20px; color: white; text-align: center; margin-top: 50px;">
-                <h2>🗺️ Ortak Tahta (Yakında)</h2>
-                <p style="color: #64748B; margin-top: 10px;">Burası maç öncesi taktik çizme alanı olacak.</p>
-            </div>
+        <div class="input-area">
+            <input type="text" id="msg-input" placeholder="Mesajını buraya yaz..." onkeypress="handleEnter(event)" disabled>
+            <button id="send-btn" onclick="sendMessage()" disabled>Gönder</button>
         </div>
-
-        <div id="vipPage" class="page">
-            <div class="vip-page-content">
-                <div class="vip-title">💎 Frost VIP Ayrıcalıkları</div>
-                <p style="color: #94A3B8; font-size: 18px;">Uygulamayı reklamsız ve premium özelliklerle kullanın!</p>
-                
-                <div class="vip-cards">
-                    <div class="vip-card">
-                        <h2 style="color: #F59E0B;">Aylık VIP</h2>
-                        <div class="vip-price">₺49<span style="font-size: 16px; color:#64748B;">/ay</span></div>
-                        <div class="vip-features">
-                            ✔️ Tamamen Reklamsız Deneyim<br>
-                            ✔️ İsminin Yanında VIP Rozeti<br>
-                            ✔️ Sohbet Baloncuğu Altın Renk Olur<br>
-                            ✔️ Yüksek Kalite Ekran Paylaşımı
-                        </div>
-                        <button class="buy-btn" onclick="buyVIP()">Şimdi Satın Al</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </div>
 
     <script>
-        // --- 1. VIP (PREMİUM) SİSTEMİ MANTIĞI ---
-        // Tarayıcının hafızasına bakar, daha önce VIP alınmış mı kontrol eder
-        let isVIP = localStorage.getItem('isWinterVIP') === 'true';
+        // --- 1. SİSTEM GÜVENLİĞİ VE VERİTABANI ---
+        let activeUser = localStorage.getItem('activeUser');
+        let isVIP = false;
+        let db = JSON.parse(localStorage.getItem('winterDB')) || {};
 
-        function checkVIPStatus() {
-            if(isVIP) {
-                document.getElementById('adBanner').style.display = 'none'; // Reklamları gizle
-                document.getElementById('myVipBadge').style.display = 'inline-block'; // Rozeti göster
-                document.getElementById('logo').classList.add('vip'); // Logoyu altın yap
-                document.getElementById('vipMenuBtn').innerHTML = "💎 VIP Aktif"; // Menü yazısını değiştir
+        function guvenlikKontrolu() {
+            if(!activeUser) { window.location.href = "login.html"; return; }
+
+            if(activeUser === "tutus" && localStorage.getItem('isAdmin') === 'true') {
+                isVIP = true; 
+            } else {
+                let accountInfo = db[activeUser];
+                if(!accountInfo || accountInfo.isBanned) { cikisYap(); return; }
+                isVIP = accountInfo.isVip;
             }
+            sistemiBaslat();
         }
-        checkVIPStatus(); // Sayfa açıldığında kontrol et
 
-        function buyVIP() {
-            // Burası normalde Shopier/Patreon linkine yönlendirir. 
-            // Şimdilik simülasyon yapıyoruz.
-            alert("Ödeme sayfasına yönlendiriliyorsunuz... (Simülasyon)");
+        function sistemiBaslat() {
+            document.getElementById('auth-guard').style.display = 'none';
+            document.getElementById('display-username').innerText = activeUser;
+
+            if(isVIP) {
+                document.getElementById('myVipBadge').style.display = 'inline-block'; 
+                document.getElementById('logo').classList.add('vip'); 
+            }
+            arkadasListesiniCiz(); // Sistemi başlatırken arkadaşları yükle
+        }
+
+        function cikisYap() {
+            localStorage.removeItem('activeUser');
+            localStorage.removeItem('isAdmin');
+            window.location.href = "login.html";
+        }
+
+        guvenlikKontrolu();
+
+        // --- 2. ARKADAŞ EKLEME VE LİSTELEME SİSTEMİ ---
+        function arkadasEkle() {
+            const hedefKullanici = document.getElementById('search-input').value.trim();
             
-            // Satın alım başarılı varsayalım:
-            localStorage.setItem('isWinterVIP', 'true');
-            isVIP = true;
-            checkVIPStatus();
-            alert("Tebrikler! Frost VIP hesabınıza tanımlandı. Artık reklamsızsınız!");
-            changePage('chatPage', document.querySelector('.menu-btn')); // Sohbete at
-        }
+            if(!hedefKullanici) return alert("Lütfen bir kullanıcı adı girin!");
+            if(hedefKullanici === activeUser) return alert("Kendinizi ekleyemezsiniz!");
+            if(!db[hedefKullanici] && hedefKullanici !== 'tutus') return alert("Sistemde böyle bir kullanıcı bulunamadı!");
 
+            // Kullanıcının arkadaş listesini al (Yoksa boş dizi oluştur)
+            if(!db[activeUser].friends) db[activeUser].friends = [];
 
-        // --- 2. SAYFA (SEKME) DEĞİŞTİRME MANTIĞI ---
-        function changePage(pageId, btnElement) {
-            // Tüm sayfaları ve buton aktifliklerini sıfırla
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+            // Zaten ekli mi kontrol et
+            if(db[activeUser].friends.includes(hedefKullanici)) {
+                return alert("Bu kullanıcı zaten arkadaş listenizde!");
+            }
+
+            // Listeye ekle ve veritabanını kaydet
+            db[activeUser].friends.push(hedefKullanici);
+            localStorage.setItem('winterDB', JSON.stringify(db));
             
-            // Seçileni aktif et
-            document.getElementById(pageId).classList.add('active');
-            btnElement.classList.add('active');
+            document.getElementById('search-input').value = ""; // Kutuyu temizle
+            alert(`${hedefKullanici} başarıyla eklendi!`);
+            arkadasListesiniCiz(); // Listeyi yenile
         }
 
+        function arkadasListesiniCiz() {
+            const container = document.getElementById('friends-list-container');
+            // Başlığı sabit tut, listeyi temizle
+            container.innerHTML = '<div class="section-title">Arkadaşlarım</div>';
+            
+            let myFriends = db[activeUser].friends || [];
+            
+            if(myFriends.length === 0) {
+                container.innerHTML += `<div style="color: #64748B; font-size: 13px; text-align: center; margin-top: 20px;">Henüz arkadaşın yok. Yukarıdan ekleyebilirsin.</div>`;
+                return;
+            }
+
+            myFriends.forEach(friend => {
+                let isFriendVip = db[friend] && db[friend].isVip;
+                // Avatar için ismin ilk harfini al
+                let basHarf = friend.charAt(0).toUpperCase();
+                
+                let item = document.createElement('div');
+                item.className = 'friend-item';
+                item.innerHTML = `
+                    <div class="friend-avatar">${basHarf}</div>
+                    <div class="friend-name">
+                        ${friend} ${isFriendVip ? '<span style="font-size:10px;">💎</span>' : ''}
+                    </div>
+                `;
+                // Arkadaşa tıklayınca ismini kopyalama veya chat kutusuna alma özelliği eklenebilir
+                item.onclick = () => alert(`${friend} ile konuşmak için ondan güncel WNT-XXXX kodunu istemelisin.`);
+                container.appendChild(item);
+            });
+        }
 
         // --- 3. P2P AĞ BAĞLANTISI (PEERJS) ---
         const myShortCode = 'WNT-' + Math.floor(1000 + Math.random() * 9000);
         const peer = new Peer(myShortCode); 
         let currentConnection = null;
 
-        peer.on('open', (id) => {
-            document.getElementById('my-id').innerText = id;
-        });
+        peer.on('open', (id) => { document.getElementById('my-id').innerText = id; });
 
-        function copyId() {
-            navigator.clipboard.writeText(myShortCode);
-            alert("Kod Kopyalandı!");
-        }
+        function copyId() { navigator.clipboard.writeText(myShortCode); alert("Kod Kopyalandı! Arkadaşına Gönder."); }
 
-        // Biri bize bağlanırsa
-        peer.on('connection', (conn) => {
-            currentConnection = conn;
-            setupEvents();
-        });
+        peer.on('connection', (conn) => { currentConnection = conn; setupEvents(); });
 
-        // Biz birine bağlanırsak
         function connectToFriend() {
             const friendId = document.getElementById('friend-id-input').value.trim().toUpperCase();
             if (!friendId) return;
@@ -232,15 +236,19 @@
 
         function setupEvents() {
             currentConnection.on('open', () => {
-                document.getElementById('conn-status').innerText = "🟢 Bağlı";
+                document.getElementById('conn-status').innerHTML = `🟢 <b>${currentConnection.peer}</b> ile bağlantı kuruldu!`;
                 document.getElementById('conn-status').style.color = "#22C55E";
-                document.getElementById('chat-box').innerHTML = `<div class="msg other" style="align-self:center;">Sohbet Başladı!</div>`;
+                
+                // Mesaj kutularını aktif et
+                document.getElementById('msg-input').disabled = false;
+                document.getElementById('send-btn').disabled = false;
+                
+                document.getElementById('chat-box').innerHTML = `<div class="msg other" style="align-self:center; color:#22C55E; background: rgba(34, 197, 94, 0.1);">Sohbet Başladı!</div>`;
             });
 
             currentConnection.on('data', (data) => {
                 if(data.type === 'chat') {
-                    // Karşıdan gelen mesaj. Eğer karşı taraf VIP ise rengini ayarlayabiliriz.
-                    addMessage("Arkadaş", data.content, "other", data.isVip);
+                    addMessage(data.sender, data.content, "other", data.isVip);
                 }
             });
         }
@@ -251,9 +259,8 @@
             const text = input.value.trim();
             if(!text || !currentConnection) return;
 
-            // Kendi VIP durumumuzu da karşıya gönderiyoruz ki onun ekranında şekilli duralım
-            currentConnection.send({ type: 'chat', content: text, isVip: isVIP });
-            addMessage("Sen", text, "me", isVIP);
+            currentConnection.send({ type: 'chat', content: text, isVip: isVIP, sender: activeUser });
+            addMessage(activeUser, text, "me", isVIP);
             input.value = '';
         }
 
@@ -261,12 +268,12 @@
 
         function addMessage(sender, content, type, senderIsVip) {
             const box = document.getElementById('chat-box');
-            // Eğer gönderen VIP ise mesaja özel class ekle
             let vipClass = senderIsVip ? 'vip-msg' : '';
             
             box.innerHTML += `
                 <div class="msg ${type} ${vipClass}">
-                    ${senderIsVip && type==='other' ? '💎 ' : ''}${content}
+                    <span class="msg-sender">${sender} ${senderIsVip ? '💎' : ''}</span>
+                    ${content}
                 </div>`;
             box.scrollTop = box.scrollHeight;
         }

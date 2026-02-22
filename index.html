@@ -6,33 +6,36 @@
     <title>WinterChat - Ana Merkez</title>
     <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
     <style>
-        /* Tüm eski CSS'ler aynen burada */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { height: 100vh; display: flex; background-color: #0F172A; color: #F8FAFC; overflow: hidden; }
         #auth-guard { position: fixed; top:0; left:0; width:100%; height:100%; background:#0F172A; z-index:9999; display:flex; justify-content:center; align-items:center; color:white; font-size:24px; }
+        
         .sidebar { width: 300px; background-color: #1E293B; display: flex; flex-direction: column; border-right: 1px solid #334155; z-index: 10; }
         .logo-area { padding: 20px; font-size: 22px; font-weight: 900; border-bottom: 1px solid #334155; }
         .logo-area span { color: #38BDF8; }
         .logo-area.vip span { color: #F59E0B; text-shadow: 0 0 10px rgba(245, 158, 11, 0.5); }
-        .menu-items { padding: 15px 10px; display: flex; flex-direction: column; gap: 5px; border-bottom: 1px solid #334155;}
+        
+        .menu-items { padding: 15px 10px; display: flex; flex-direction: column; gap: 5px; border-bottom: 1px solid #334155; overflow-y: auto;}
         .menu-btn { padding: 12px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; color: #94A3B8; display: flex; align-items: center; transition: 0.2s; font-size: 14px;}
-        .menu-btn:hover { background-color: #334155; color: white; } .menu-btn.active { background-color: #38BDF8; color: white; }
+        .menu-btn:hover { background-color: #334155; color: white; } 
+        .menu-btn.active { background-color: #38BDF8; color: white; }
+        
         .search-area { padding: 15px; border-bottom: 1px solid #334155; background: #0B0F19; }
         .search-box { display: flex; gap: 5px; }
         .search-box input { flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #475569; background: #1E293B; color: white; outline: none; }
         .search-box button { padding: 10px 15px; border-radius: 6px; border: none; background: #22C55E; color: white; font-weight: bold; cursor: pointer; }
+        
         .friends-list { flex: 1; padding: 15px 10px; overflow-y: auto; }
         .section-title { font-size: 12px; color: #94A3B8; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; }
         .friend-item { padding: 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.2s; background: rgba(255,255,255,0.02); margin-bottom:5px;}
         .friend-item:hover { background: rgba(255,255,255,0.05); }
         
-        /* Avatar Sistemi İçin Güncellemeler */
         .friend-avatar { width: 35px; height: 35px; border-radius: 50%; background: #38BDF8; display: flex; justify-content: center; align-items: center; font-weight: bold; color: white; overflow: hidden; border: 2px solid transparent;}
         .friend-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .friend-avatar.vip-avatar { border-color: #F59E0B; box-shadow: 0 0 8px rgba(245, 158, 11, 0.5); }
 
         .profile-area { padding: 15px; background-color: #0B0F19; display: flex; align-items: center; gap: 15px; border-top: 1px solid #334155; }
-        .profile-details { flex: 1; }
+        .profile-details { flex: 1; overflow: hidden; }
         .user-name-display { font-size: 16px; font-weight: bold; color: white; text-transform: uppercase; }
         .vip-badge { display: none; background: #F59E0B; color: black; font-size: 10px; padding: 2px 5px; border-radius: 4px; font-weight: 900; }
         .my-id-box { background: #1E293B; padding: 5px; border-radius: 6px; text-align: center; font-weight: bold; color: #38BDF8; border: 1px dashed #475569; cursor: pointer; font-size: 12px; margin-top:5px;}
@@ -56,7 +59,6 @@
         .input-area input[type="text"] { flex: 1; padding: 15px; border-radius: 10px; border: 1px solid #475569; background: #0F172A; color: white; outline: none; font-size: 15px;}
         .input-area button { padding: 15px 30px; border-radius: 10px; border: none; background: #38BDF8; color: white; font-weight: bold; cursor:pointer;}
         
-        /* VIP Medya Butonu */
         .vip-media-btn { background: #F59E0B; color: black; font-size: 20px; padding: 10px 15px; border-radius: 10px; cursor: pointer; display: none; font-weight: bold;}
         .vip-media-btn:hover { background: #D97706; }
         #file-upload { display: none; }
@@ -71,8 +73,10 @@
         <div class="logo-area" id="logo">❄️ Winter<span>Chat</span></div>
         <div class="menu-items">
             <div class="menu-btn active">💬 Sohbet & Bağlantı</div>
+            <div class="menu-btn" style="color: #22C55E;" onclick="window.location.href='case.html'">🎁 Günlük Kasa Aç</div>
+            
             <div class="menu-btn" onclick="window.location.href='news.html'">📰 Haberler & Duyurular</div>
-            <div class="menu-btn" onclick="window.location.href='support.html'">📢 Destek & Rapor Gönder</div>
+            <div class="menu-btn" onclick="window.location.href='support.html'">📢 Destek & Rapor</div>
             <div class="menu-btn" onclick="window.location.href='settings.html'">⚙️ Profil Ayarları</div>
             <div class="menu-btn" id="adminPanelBtn" style="display:none; color:#F59E0B;" onclick="window.location.href='admin.html'">🛡️ Yönetici Paneli</div>
         </div>
@@ -117,7 +121,6 @@
             <label class="vip-media-btn" id="vipMediaBtn" title="VIP Ayrıcalığı: Resim Gönder">
                 📎 <input type="file" id="file-upload" accept="image/*" onchange="sendImage(this)" disabled>
             </label>
-            
             <input type="text" id="msg-input" placeholder="Mesajını buraya yaz..." onkeypress="handleEnter(event)" disabled>
             <button id="send-btn" onclick="sendMessage()" disabled>Gönder</button>
         </div>
@@ -141,7 +144,7 @@
                 isVIP = accountInfo.isVip;
             }
             
-            myAvatar = accountInfo.avatar || ""; // Varsa kendi resmini çek
+            myAvatar = accountInfo.avatar || ""; 
             sistemiBaslat();
         }
 
@@ -149,7 +152,6 @@
             document.getElementById('auth-guard').style.display = 'none';
             document.getElementById('display-username').innerText = activeUser;
             
-            // Profil resmimizi ayarla
             const myPicBox = document.getElementById('my-profile-pic');
             if(myAvatar) {
                 myPicBox.innerHTML = `<img src="${myAvatar}">`;
@@ -161,8 +163,6 @@
             if(isVIP) {
                 document.getElementById('myVipBadge').style.display = 'inline-block'; 
                 document.getElementById('logo').classList.add('vip'); 
-                
-                // VIP Medya Butonunu Aç!
                 document.getElementById('vipMediaBtn').style.display = 'block';
                 document.getElementById('file-upload').disabled = false;
             }
@@ -212,7 +212,6 @@
 
         guvenlikKontrolu();
 
-        // P2P AĞ BAĞLANTISI VE SOHBET
         const myShortCode = 'WNT-' + Math.floor(1000 + Math.random() * 9000);
         const peer = new Peer(myShortCode); 
         let currentConnection = null;
@@ -252,7 +251,6 @@
             input.value = '';
         }
 
-        // --- VIP RESİM GÖNDERME FONKSİYONU ---
         function sendImage(inputElement) {
             if(!isVIP) return alert("Bu özellik sadece VIP üyelere özeldir!");
             const file = inputElement.files[0];
@@ -264,7 +262,7 @@
                 currentConnection.send({ type: 'image', content: imgData, isVip: isVIP, sender: activeUser });
                 addMessage(activeUser, `<img src="${imgData}">`, "me", isVIP);
             };
-            reader.readAsDataURL(file); // Resmi koda çevirip PeerJS ile yollar
+            reader.readAsDataURL(file); 
         }
 
         function handleEnter(e) { if(e.key === 'Enter') sendMessage(); }

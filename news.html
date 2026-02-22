@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>WinterChat - Haberler</title>
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: #0B0F19; color: white; padding: 40px; margin: 0; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; background: #1E293B; padding: 20px; border-radius: 12px; border: 1px solid #334155;}
+        .title { font-size: 24px; font-weight: 900; color: #38BDF8; letter-spacing: 1px; }
+        .btn-back { padding: 10px 20px; background: #334155; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        
+        .news-card { background: #1E293B; border-left: 4px solid #38BDF8; padding: 25px; border-radius: 10px; margin-bottom: 20px; transition: 0.3s; }
+        .news-card:hover { transform: translateX(10px); background: #243447; }
+        .news-date { color: #94A3B8; font-size: 12px; font-weight: bold; margin-bottom: 10px; }
+        .news-title { color: #F8FAFC; font-size: 20px; font-weight: bold; margin-bottom: 10px; }
+        .news-content { color: #CBD5E1; line-height: 1.6; }
+        .badge { background: #EF4444; color: white; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; vertical-align: middle; margin-left: 10px;}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title">📰 Winter Haber Merkezi</div>
+            <button class="btn-back" onclick="window.location.href='index.html'">Geri Dön</button>
+        </div>
+
+        <div id="news-feed">
+            <div class="news-card">
+                <div class="news-date">23 ŞUBAT 2026</div>
+                <div class="news-title">WinterChat v3.0 Yayında! <span class="badge">YENİ</span></div>
+                <div class="news-content">Uzun zamandır beklenen büyük güncelleme geldi! Artık gelişmiş güvenlik duvarı, özel ban ekranları, şık arayüzler ve arkadaş ekleme sistemi aktif. Hata bulursanız Destek kısmından bildirmeyi unutmayın.</div>
+            </div>
+
+            <div class="news-card" style="border-left-color: #F59E0B;">
+                <div class="news-date">20 ŞUBAT 2026</div>
+                <div class="news-title">VIP Sistemi Aktifleştirildi</div>
+                <div class="news-content">Frost VIP ayrıcalıkları sisteme entegre edildi. VIP üyeler artık sohbetlerde özel elmas rozeti ve altın renkli mesaj balonlarına sahip olacaklar.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        if(!localStorage.getItem('activeUser')) window.location.href = 'login.html';
+    </script>
+</body>
+</html>

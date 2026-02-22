@@ -4,52 +4,137 @@
     <meta charset="UTF-8">
     <title>WinterChat - Giriş</title>
     <style>
-        body { background: #0F172A; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .box { background: #1E293B; padding: 40px; border-radius: 15px; width: 300px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border: 1px solid #334155; }
-        input { width: 90%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; background: #0F172A; color: white; outline: none; }
-        button { width: 100%; padding: 12px; background: #22C55E; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        body { background: #0F172A; color: white; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
+        .box { background: #1E293B; padding: 40px; border-radius: 15px; width: 320px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #334155; position: relative; z-index: 10; }
+        input { width: 100%; box-sizing: border-box; padding: 14px; margin: 10px 0; border-radius: 8px; border: 1px solid #475569; background: #0F172A; color: white; outline: none; transition: 0.3s; }
+        input:focus { border-color: #38BDF8; }
+        button { width: 100%; padding: 14px; background: #22C55E; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 16px; transition: 0.2s; }
         button:hover { background: #16A34A; }
-        a { color: #94A3B8; font-size: 14px; text-decoration: none; display: block; margin-top: 15px; }
+        a { color: #94A3B8; font-size: 14px; text-decoration: none; display: block; margin-top: 20px; }
+        a:hover { color: white; }
+
+        /* ÖZEL BİLDİRİM (CUSTOM ALERT) TASARIMI */
+        .custom-alert { position: fixed; top: 20px; right: 20px; background: #EF4444; color: white; padding: 15px 25px; border-radius: 8px; font-weight: bold; box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4); transform: translateX(150%); transition: 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55); z-index: 9999; display: flex; align-items: center; gap: 10px; }
+        .custom-alert.show { transform: translateX(0); }
+
+        /* TAM EKRAN BAN SAYFASI */
+        .ban-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0B0F19; z-index: 999; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; }
+        .ban-icon { font-size: 80px; margin-bottom: 20px; animation: pulse 2s infinite; }
+        .ban-title { color: #EF4444; font-size: 36px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 15px; }
+        .ban-details { background: #1E293B; padding: 25px; border-radius: 12px; border: 1px solid #EF4444; max-width: 500px; width: 100%; margin-top: 20px; }
+        .ban-row { display: flex; justify-content: space-between; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #334155; }
+        .ban-row:last-child { border: none; margin-bottom: 0; padding-bottom: 0; }
+        .ban-label { color: #94A3B8; font-weight: bold; }
+        .ban-value { color: white; font-weight: bold; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
     </style>
 </head>
 <body>
-    <div class="box">
-        <h2 style="color: #22C55E; margin-bottom: 20px;">Giriş Yap</h2>
+
+    <div id="customAlert" class="custom-alert">
+        <span>⚠️</span> <span id="alertMessage">Bir hata oluştu!</span>
+    </div>
+
+    <div class="box" id="loginBox">
+        <h2 style="color: #22C55E; margin-bottom: 5px;">Sisteme Giriş</h2>
+        <p style="color: #64748B; font-size: 14px; margin-bottom: 25px;">WinterChat v3.0</p>
         
-        <input type="text" id="log-user" placeholder="Kullanıcı Adı">
+        <input type="text" id="log-user" placeholder="Kullanıcı Adı" autocomplete="off">
         <input type="password" id="log-pass" placeholder="Şifre">
-        <button onclick="girisYap()">Sisteme Gir</button>
+        <button onclick="girisYap()">Giriş Yap</button>
         <a href="register.html">Hesabın yok mu? Kayıt Ol</a>
     </div>
 
+    <div class="ban-screen" id="banScreen">
+        <div class="ban-icon">🔨</div>
+        <div class="ban-title">HESABINIZ YASAKLANDI</div>
+        <p style="color: #94A3B8; font-size: 16px;">Sistem kurallarını ihlal ettiğiniz için hesabınıza erişim engellendi.</p>
+        
+        <div class="ban-details">
+            <div class="ban-row">
+                <span class="ban-label">Ceza Nedeni:</span>
+                <span class="ban-value" id="banReasonText" style="color: #F59E0B;">Küfür / Hakaret</span>
+            </div>
+            <div class="ban-row">
+                <span class="ban-label">Yasaklanma Tarihi:</span>
+                <span class="ban-value" id="banDateText">12.10.2023</span>
+            </div>
+            <div class="ban-row">
+                <span class="ban-label">Cezanın Bitiş Tarihi:</span>
+                <span class="ban-value" id="banUntilText" style="color: #22C55E;">15.10.2023 14:30</span>
+            </div>
+        </div>
+        <button onclick="window.location.reload()" style="max-width: 300px; background: #334155; margin-top: 30px;">Geri Dön</button>
+    </div>
+
     <script>
+        // Özel bildirim gösterme fonksiyonu (alert yerine bunu kullanıyoruz)
+        function showAlert(message, isSuccess = false) {
+            const alertBox = document.getElementById('customAlert');
+            document.getElementById('alertMessage').innerText = message;
+            alertBox.style.background = isSuccess ? '#22C55E' : '#EF4444';
+            alertBox.classList.add('show');
+            setTimeout(() => { alertBox.classList.remove('show'); }, 3000); // 3 saniye sonra gizle
+        }
+
         function girisYap() {
             const user = document.getElementById('log-user').value.trim();
             const pass = document.getElementById('log-pass').value.trim();
 
-            // SÜPER ADMİN GİRİŞİ (Senin belirlediğin gizli şifre)
+            if(!user || !pass) return showAlert("Lütfen tüm alanları doldurun!");
+
+            // SÜPER ADMİN GİRİŞİ (Kurucu)
             if(user === "tutus" && pass === "aliomer") {
                 localStorage.setItem('activeUser', 'tutus');
                 localStorage.setItem('isAdmin', 'true');
-                alert("Hoş geldin Yönetici!");
-                window.location.href = "admin.html"; // Admin paneline at
+                window.location.href = "admin.html"; 
                 return;
             }
 
-            // Normal Kullanıcı Kontrolü
             let db = JSON.parse(localStorage.getItem('winterDB')) || {};
 
-            if(!db[user]) return alert("Böyle bir hesap bulunamadı!");
-            if(db[user].password !== pass) return alert("Şifre yanlış!");
-            if(db[user].isBanned) return alert("BU HESAP SİSTEMDEN BANLANMIŞTIR!");
+            if(!db[user]) return showAlert("Böyle bir hesap bulunamadı!");
+            if(db[user].password !== pass) return showAlert("Şifre yanlış!");
+
+            // --- GELİŞMİŞ BAN KONTROLÜ ---
+            let acc = db[user];
+            if(acc.banInfo && acc.banInfo.isBanned) {
+                // Şuanın saatini al
+                let suan = Date.now();
+                
+                // Eğer banın bitiş süresi şuanı geçmediyse BANLIDIR
+                if(suan < acc.banInfo.until) {
+                    gosterBanEkrani(acc.banInfo);
+                    return; // Girişi durdur
+                } else {
+                    // Süre dolmuş! Banı otomatik kaldır ve DB'yi güncelle
+                    acc.banInfo.isBanned = false;
+                    localStorage.setItem('winterDB', JSON.stringify(db));
+                    showAlert("Ban cezanız bitti, sisteme hoş geldiniz!", true);
+                }
+            }
 
             // Başarılı giriş
             localStorage.setItem('activeUser', user);
-            localStorage.setItem('isAdmin', 'false');
-            alert("Giriş başarılı!");
+            // Kendi veritabanında adminlik yetkisi var mı kontrol et
+            localStorage.setItem('isAdmin', acc.isAdmin ? 'true' : 'false');
             
-            // Buraya ana uygulamanın adını yazmalısın (Örn: index.html)
-            window.location.href = "index.html"; 
+            // Eğer admine giriş yaptıysa admin paneline, normal üyeyse sohbete
+            if(acc.isAdmin) window.location.href = "admin.html";
+            else window.location.href = "index.html"; 
+        }
+
+        function gosterBanEkrani(banInfo) {
+            document.getElementById('loginBox').style.display = 'none'; // Logini gizle
+            document.getElementById('banScreen').style.display = 'flex'; // Ban ekranını aç
+            
+            // Tarihleri okunabilir formata çevir
+            let bitisTarihi = new Date(banInfo.until).toLocaleString('tr-TR');
+            let atilmaTarihi = new Date(banInfo.bannedAt).toLocaleString('tr-TR');
+
+            document.getElementById('banReasonText').innerText = banInfo.reason;
+            document.getElementById('banDateText').innerText = atilmaTarihi;
+            document.getElementById('banUntilText').innerText = bitisTarihi;
         }
     </script>
 </body>

@@ -3,443 +3,275 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Pro Penalty - FINAL FIX</title>
+    <title>WinterChat - P2P</title>
+    <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
-        body { font-family: 'Segoe UI', sans-serif; overflow: hidden; background: #1a1a1a; color: white; }
-        
-        #gameContainer { position: relative; width: 100vw; height: 100vh; }
-        
-        #loadingScreen {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 9999; display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-        }
-        .loader-text { font-size: 24px; color: #FFD700; margin-bottom: 20px; font-weight: bold; }
-        .loader-bar { width: 300px; height: 8px; background: #333; border-radius: 4px; overflow: hidden; }
-        .loader-fill { width: 0%; height: 100%; background: #FFD700; transition: width 0.2s; }
-
-        /* UI */
-        .ui-panel {
-            position: absolute; top: 20px; left: 20px;
-            background: rgba(0, 0, 0, 0.7); padding: 15px 25px; border-radius: 12px;
-            border-left: 5px solid #FFD700; min-width: 200px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        .stat { margin: 5px 0; font-size: 20px; font-weight: bold; font-family: 'Courier New', monospace; }
-        
-        #aimInfo {
-            position: absolute; bottom: 180px; left: 50%; transform: translateX(-50%);
-            font-size: 24px; font-weight: 900; color: #00e5ff;
-            text-shadow: 0 0 15px rgba(0, 229, 255, 0.8);
-            background: rgba(0,0,0,0.5); padding: 5px 20px; border-radius: 20px;
+        /* Kış Teması ve Genel Ayarlar */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        body { 
+            height: 100vh; display: flex; justify-content: center; align-items: center; 
+            background: linear-gradient(135deg, #0B192C, #1A365D, #00A8E8); 
+            color: white; overflow: hidden; position: relative;
         }
 
-        #powerContainer {
-            position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);
-            width: 400px; text-align: center; font-weight: bold;
-            text-shadow: 2px 2px 4px black;
-        }
-        #powerBar {
-            width: 100%; height: 40px; background: rgba(0,0,0,0.8); 
-            border: 4px solid white; border-radius: 25px; overflow: hidden; margin-top: 5px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-        }
-        #powerFill {
-            width: 0%; height: 100%; 
-            background: linear-gradient(90deg, #4CAF50, #FFEB3B, #ff0000);
+        /* Kar Yağışı Efekti İçin Kapsayıcı */
+        #snow-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+        .snowflake { position: absolute; background: white; border-radius: 50%; opacity: 0.8; animation: fall linear infinite; }
+        @keyframes fall {
+            to { transform: translateY(100vh); }
         }
 
-        #message {
-            position: absolute; top: 30%; left: 50%; transform: translate(-50%, -50%) scale(0);
-            font-size: 100px; font-weight: 900; pointer-events: none;
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            text-shadow: 0 10px 30px rgba(0,0,0,1);
-            z-index: 100; -webkit-text-stroke: 3px black;
+        /* Şık Buzlu Cam (Glassmorphism) Tasarımı */
+        .app-container {
+            width: 900px; height: 600px; z-index: 10;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            display: flex; overflow: hidden;
         }
+
+        /* Sol Panel - Bağlantı ve Kontroller */
+        .sidebar {
+            width: 300px; background: rgba(0, 0, 0, 0.2); padding: 20px;
+            display: flex; flex-direction: column; gap: 20px; border-right: 1px solid rgba(255,255,255,0.1);
+        }
+        .logo { font-size: 24px; font-weight: bold; text-align: center; color: #E0F2FE; text-shadow: 0 0 10px rgba(255,255,255,0.5); margin-bottom: 10px; }
+        .logo span { color: #38BDF8; }
+        
+        .box { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); text-align: center;}
+        .box h3 { font-size: 14px; color: #BAE6FD; margin-bottom: 8px; text-transform: uppercase; }
+        .my-id { font-size: 18px; font-weight: bold; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; user-select: text; letter-spacing: 2px; }
+        
+        input { width: 100%; padding: 12px; border-radius: 8px; border: none; background: rgba(255,255,255,0.9); color: #0f172a; font-weight: bold; outline: none; margin-bottom: 10px; }
+        button { 
+            width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;
+            background: linear-gradient(90deg, #0284C7, #0EA5E9); color: white; transition: 0.3s;
+        }
+        button:hover { background: linear-gradient(90deg, #0EA5E9, #38BDF8); box-shadow: 0 0 15px rgba(14, 165, 233, 0.5); }
+        button.call-btn { background: linear-gradient(90deg, #16A34A, #22C55E); margin-top: 10px; }
+
+        /* Görüntülü Arama Videoları */
+        .video-container { display: flex; flex-direction: column; gap: 10px; margin-top: auto; }
+        video { width: 100%; border-radius: 10px; background: black; display: none; }
+
+        /* Sağ Panel - Sohbet Alanı */
+        .chat-area { flex: 1; display: flex; flex-direction: column; }
+        .chat-header { padding: 20px; background: rgba(0,0,0,0.2); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: bold; color: #E0F2FE;}
+        .messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        
+        .msg { max-width: 70%; padding: 12px 16px; border-radius: 15px; font-size: 15px; line-height: 1.4; word-wrap: break-word;}
+        .msg.me { align-self: flex-end; background: #0284C7; border-bottom-right-radius: 2px; }
+        .msg.other { align-self: flex-start; background: rgba(255,255,255,0.1); border-bottom-left-radius: 2px; border: 1px solid rgba(255,255,255,0.1); }
+        .msg img { max-width: 100%; border-radius: 8px; margin-top: 5px; }
+
+        .input-area { padding: 20px; background: rgba(0,0,0,0.2); display: flex; gap: 10px; align-items: center;}
+        .input-area input[type="text"] { flex: 1; margin: 0; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); }
+        .input-area input[type="text"]::placeholder { color: #94A3B8; }
+        .file-label { 
+            background: rgba(255,255,255,0.1); padding: 12px 15px; border-radius: 8px; cursor: pointer; 
+            border: 1px solid rgba(255,255,255,0.2); font-size: 18px;
+        }
+        .file-label:hover { background: rgba(255,255,255,0.2); }
+        #file-input { display: none; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 10px; }
     </style>
 </head>
 <body>
 
-    <div id="loadingScreen">
-        <div class="loader-text">SAHA HAZIRLANIYOR...</div>
-        <div class="loader-bar"><div class="loader-fill" id="loaderFill"></div></div>
-    </div>
+    <div id="snow-container"></div>
 
-    <div id="gameContainer">
-        <div class="ui-panel">
-            <div class="stat">SKOR: <span id="score" style="color:#FFD700">0</span></div>
-            <div class="stat">ŞUT: <span id="attempts">0</span></div>
+    <div class="app-container">
+        <div class="sidebar">
+            <div class="logo">❄️ Winter<span>Chat</span></div>
+            
+            <div class="box">
+                <h3>Senin Arkadaşlık Kodun</h3>
+                <div class="my-id" id="my-id">Yükleniyor...</div>
+            </div>
+
+            <div class="box">
+                <h3>Arkadaşına Bağlan</h3>
+                <input type="text" id="friend-id-input" placeholder="Arkadaşının Kodunu Gir" autocomplete="off">
+                <button onclick="connectToFriend()">Sohbete Bağlan</button>
+                <button class="call-btn" onclick="startVideoCall()">Görüntülü Ara</button>
+            </div>
+
+            <div class="video-container">
+                <video id="other-video" autoplay playsinline></video>
+                <video id="my-video" autoplay playsinline muted></video>
+            </div>
         </div>
 
-        <div id="aimInfo">ORTA</div>
+        <div class="chat-area">
+            <div class="chat-header" id="status-text">Durum: Bağlantı Bekleniyor...</div>
+            
+            <div class="messages" id="chat-box">
+                <div class="msg other">Sisteme hoş geldin! Sol taraftaki kodunu arkadaşına gönder veya onun kodunu girerek bağlan.</div>
+            </div>
 
-        <div id="powerContainer">
-            <div>SPACE TUŞUNA BASILI TUT</div>
-            <div id="powerBar"><div id="powerFill"></div></div>
+            <div class="input-area">
+                <label class="file-label">
+                    📷 <input type="file" id="file-input" accept="image/*" onchange="sendImage(this)">
+                </label>
+                <input type="text" id="msg-input" placeholder="Mesajınızı yazın..." onkeypress="handleEnter(event)">
+                <button style="width: auto; padding: 12px 25px;" onclick="sendMessage()">Gönder</button>
+            </div>
         </div>
-
-        <div id="message">GOL!</div>
     </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 
     <script>
-        // --- AYARLAR ---
-        const BALL_SCALE = 15.0;  // Topu BÜYÜTTÜM (8'den 15'e)
-        const BALL_START_Y = 0.6; // Topu YUKARI kaldırdım (Gömülmesin diye)
-        const GOAL_SCALE = 8.5; 
+        // --- 1. KAR YAĞIŞI SİSTEMİ ---
+        function createSnow() {
+            const container = document.getElementById('snow-container');
+            for(let i=0; i<50; i++) {
+                let flake = document.createElement('div');
+                flake.className = 'snowflake';
+                let size = Math.random() * 5 + 2; // 2px - 7px arası
+                flake.style.width = size + 'px';
+                flake.style.height = size + 'px';
+                flake.style.left = Math.random() * 100 + 'vw';
+                flake.style.animationDuration = Math.random() * 3 + 2 + 's'; // Düşme hızı
+                flake.style.animationDelay = Math.random() * 2 + 's';
+                container.appendChild(flake);
+            }
+        }
+        createSnow();
+
+        // --- 2. P2P AĞ BAĞLANTISI (PEERJS) ---
+        // Rastgele kısa bir kod üretir (Örn: WNTR-A1B2)
+        const myShortCode = 'WNTR-' + Math.random().toString(36).substr(2, 4).toUpperCase();
         
-        // --- DEĞİŞKENLER ---
-        let scene, camera, renderer, loader;
-        // Physics
-        let ballPhysics = { pos: new THREE.Vector3(0, BALL_START_Y, 0), vel: new THREE.Vector3(), curve: 0 };
-        // Models
-        let ballModel = null;
-        let goalModel = null;
-        let goalkeeper;
-        
-        // Game State
-        let isGameReady = false;
-        let isPowering = false;
-        let isShooting = false;
-        let power = 0;
-        let powerDir = 2; // Bar dolma hızı
-        let aimX = 0; // -1 (Sol) ... 1 (Sağ)
-        let score = 0, attempts = 0;
+        // PeerJS sunucusuna bağlanıyoruz
+        const peer = new Peer(myShortCode); 
+        let currentConnection = null;
+        let myVideoStream = null;
 
-        init();
+        // Kodumuz hazır olduğunda ekrana yazdır
+        peer.on('open', (id) => {
+            document.getElementById('my-id').innerText = id;
+        });
 
-        function init() {
-            // 1. Sahne
-            scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x1a1a1a);
-            scene.fog = new THREE.Fog(0x1a1a1a, 20, 90);
+        // --- 3. BİRİ BİZE BAĞLANDIĞINDA ---
+        peer.on('connection', (conn) => {
+            currentConnection = conn;
+            setupConnectionEvents();
+        });
 
-            // 2. Kamera (Top büyüdüğü için kamerayı az daha geri çektim)
-            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 3, 13);
+        // Biri bizi görüntülü aradığında
+        peer.on('call', async (call) => {
+            if(confirm("Arkadaşın seni görüntülü arıyor, açmak ister misin?")) {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                showMyVideo(stream);
+                call.answer(stream); // Aramayı cevapla ve kendi görüntünü yolla
+                
+                call.on('stream', (otherStream) => {
+                    showOtherVideo(otherStream);
+                });
+            }
+        });
+
+        // --- 4. BİZ BİRİNE BAĞLANDIĞIMIZDA ---
+        function connectToFriend() {
+            const friendId = document.getElementById('friend-id-input').value.trim();
+            if (!friendId) return alert("Lütfen geçerli bir kod girin!");
             
-            // 3. Renderer
-            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.shadowMap.enabled = true;
-            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-            renderer.outputEncoding = THREE.sRGBEncoding;
-            renderer.toneMapping = THREE.ACESFilmicToneMapping;
-            document.getElementById('gameContainer').appendChild(renderer.domElement);
+            document.getElementById('status-text').innerText = "Bağlanılıyor...";
+            currentConnection = peer.connect(friendId);
+            setupConnectionEvents();
+        }
 
-            // 4. Işıklar
-            const ambient = new THREE.AmbientLight(0xffffff, 0.8);
-            scene.add(ambient);
-            
-            const sun = new THREE.DirectionalLight(0xffffff, 1.2);
-            sun.position.set(15, 30, 15);
-            sun.castShadow = true;
-            sun.shadow.mapSize.width = 2048; 
-            sun.shadow.mapSize.height = 2048;
-            scene.add(sun);
-
-            // 5. Ortam
-            createEnvironment();
-            createGoalkeeper(); // Basit kaleci
-            loadModels(); // Modelleri yükle
-
-            // 6. Eventler
-            window.addEventListener('resize', () => {
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
+        // Bağlantı başarılıysa çalışacak komutlar
+        function setupConnectionEvents() {
+            currentConnection.on('open', () => {
+                document.getElementById('status-text').innerText = "🟢 Bağlandı: " + currentConnection.peer;
+                addMessage("Sistem", "Bağlantı kuruldu! Sohbet edebilirsiniz.", "other");
             });
-            window.addEventListener('keydown', onKeyDown);
-            window.addEventListener('keyup', onKeyUp);
 
-            animate();
+            // Karşıdan mesaj veya resim geldiğinde
+            currentConnection.on('data', (data) => {
+                if(data.type === 'text') {
+                    addMessage("Arkadaş", data.content, "other");
+                } else if(data.type === 'image') {
+                    addMessage("Arkadaş", `<img src="${data.content}">`, "other");
+                }
+            });
         }
 
-        function createEnvironment() {
-            // Zemin
-            const groundGeo = new THREE.PlaneGeometry(200, 200);
-            const groundMat = new THREE.MeshStandardMaterial({ color: 0x1b5e20, roughness: 1 });
-            const ground = new THREE.Mesh(groundGeo, groundMat);
-            ground.rotation.x = -Math.PI / 2;
-            ground.receiveShadow = true;
-            scene.add(ground);
+        // --- 5. MESAJ VE RESİM GÖNDERME ---
+        function sendMessage() {
+            const input = document.getElementById('msg-input');
+            const text = input.value.trim();
+            if(!text || !currentConnection) return;
 
-            // Çizgiler
-            const lineMat = new THREE.MeshBasicMaterial({ color: 0xffffff, opacity: 0.7, transparent: true });
-            const goalLine = new THREE.Mesh(new THREE.PlaneGeometry(40, 0.2), lineMat);
-            goalLine.rotation.x = -Math.PI / 2;
-            goalLine.position.set(0, 0.02, -18);
-            scene.add(goalLine);
-
-            // Penaltı noktası
-            const spot = new THREE.Mesh(new THREE.CircleGeometry(0.4, 16), lineMat);
-            spot.rotation.x = -Math.PI / 2;
-            spot.position.set(0, 0.03, 0);
-            scene.add(spot);
+            // Karşıya gönder
+            currentConnection.send({ type: 'text', content: text });
+            // Kendi ekranımıza ekle
+            addMessage("Sen", text, "me");
+            input.value = '';
         }
 
-        function createGoalkeeper() {
-            // Geçici Kaleci (Kutu)
-            goalkeeper = new THREE.Group();
-            const mat = new THREE.MeshStandardMaterial({ color: 0xd32f2f, roughness: 0.3 });
-            const body = new THREE.Mesh(new THREE.BoxGeometry(1, 1.9, 0.5), mat);
-            body.position.y = 0.95;
-            body.castShadow = true;
-            goalkeeper.add(body);
-            goalkeeper.position.set(0, 0, -19);
-            scene.add(goalkeeper);
+        function handleEnter(e) {
+            if(e.key === 'Enter') sendMessage();
         }
 
-        function loadModels() {
-            const manager = new THREE.LoadingManager();
-            loader = new THREE.GLTFLoader(manager);
+        function sendImage(input) {
+            const file = input.files[0];
+            if(!file || !currentConnection) return;
 
-            manager.onProgress = (url, loaded, total) => {
-                document.getElementById('loaderFill').style.width = (loaded / total * 100) + '%';
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Image = e.target.result;
+                // Resmi karşıya gönder
+                currentConnection.send({ type: 'image', content: base64Image });
+                // Kendi ekranımıza ekle
+                addMessage("Sen", `<img src="${base64Image}">`, "me");
             };
-            manager.onLoad = () => {
-                document.getElementById('loadingScreen').style.display = 'none';
-                isGameReady = true;
-                resetBall();
-            };
+            reader.readAsDataURL(file); // Resmi koda çevirip yollar (P2P için şart)
+        }
 
-            // --- KALE YÜKLEME VE ŞEFFAFLIK FIX ---
-            loader.load('Soccer goal.glb', (gltf) => {
-                goalModel = gltf.scene;
-                goalModel.scale.set(GOAL_SCALE, GOAL_SCALE, GOAL_SCALE);
-                goalModel.position.set(0, 0, -20);
+        // Ekrana baloncuğu çizen fonksiyon
+        function addMessage(sender, content, type) {
+            const box = document.getElementById('chat-box');
+            box.innerHTML += `<div class="msg ${type}">${content}</div>`;
+            box.scrollTop = box.scrollHeight;
+        }
 
-                // YENİ MATERYAL OLUŞTUR (Beyaz ve Katı)
-                const solidWhiteMat = new THREE.MeshStandardMaterial({
-                    color: 0xffffff,
-                    roughness: 0.4,
-                    metalness: 0.1,
-                    transparent: false, // Kesinlikle şeffaf değil
-                    opacity: 1.0,
-                    side: THREE.FrontSide
+        // --- 6. GÖRÜNTÜLÜ ARAMA BAŞLATMA ---
+        async function startVideoCall() {
+            if(!currentConnection) return alert("Önce arkadaşınızın koduna bağlanmalısınız!");
+            
+            try {
+                // Kamera ve mikrofon izni iste
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                showMyVideo(stream);
+                
+                const call = peer.call(currentConnection.peer, stream);
+                
+                call.on('stream', (otherStream) => {
+                    showOtherVideo(otherStream);
                 });
-
-                goalModel.traverse((child) => {
-                    if (child.isMesh) {
-                        child.castShadow = true;
-                        child.receiveShadow = true;
-
-                        // İsim kontrolü: Eğer "Net" (Ağ) değilse, bizim katı materyali bas
-                        if (child.material.name.toLowerCase().includes('net')) {
-                            // Ağ ise şeffaf kalsın
-                            child.material.transparent = true;
-                            child.material.opacity = 0.3;
-                            child.material.side = THREE.DoubleSide;
-                        } else {
-                            // Direkler: Materyali tamamen değiştir
-                            child.material = solidWhiteMat;
-                        }
-                    }
-                });
-                scene.add(goalModel);
-            }, undefined, (err) => console.error("Kale Hatası:", err));
-
-            // --- TOP YÜKLEME ---
-            loader.load('Simple soccer football.glb', (gltf) => {
-                ballModel = gltf.scene;
-                ballModel.scale.set(BALL_SCALE, BALL_SCALE, BALL_SCALE);
-                
-                // Topun materyalini de fixleyelim
-                ballModel.traverse(child => {
-                    if(child.isMesh) {
-                        child.castShadow = true;
-                        child.material.transparent = false;
-                        child.material.opacity = 1.0;
-                    }
-                });
-
-                scene.add(ballModel);
-                // İlk pozisyon
-                ballModel.position.copy(ballPhysics.pos);
-            }, undefined, (err) => console.error("Top Hatası:", err));
-        }
-
-        // --- OYUN KONTROLLERİ ---
-        function onKeyDown(e) {
-            if (!isGameReady || isShooting) return;
-            
-            if (e.code === 'ArrowLeft') { aimX = Math.max(-1, aimX - 0.1); updateAimUI(); }
-            if (e.code === 'ArrowRight') { aimX = Math.min(1, aimX + 0.1); updateAimUI(); }
-            if (e.code === 'Space') isPowering = true;
-            if (e.key.toLowerCase() === 'r') resetGame();
-        }
-
-        function onKeyUp(e) {
-            if (e.code === 'Space' && isPowering) shoot();
-        }
-
-        function updateAimUI() {
-            const el = document.getElementById('aimInfo');
-            const arrows = aimX < 0 ? "◄".repeat(Math.abs(aimX)*5) : "►".repeat(Math.abs(aimX)*5);
-            el.textContent = aimX === 0 ? "ORTA" : arrows;
-            el.style.color = aimX === 0 ? "#fff" : (aimX < 0 ? "#ff0055" : "#00e5ff");
-            
-            // Kamera hafif dönsün
-            camera.position.x = aimX * 2;
-            camera.lookAt(0, 2, -10);
-        }
-
-        function shoot() {
-            isPowering = false;
-            isShooting = true;
-            attempts++;
-            document.getElementById('attempts').textContent = attempts;
-
-            // FİZİK HESAPLAMA
-            const p = power / 100;
-            const speed = 0.5 + p * 0.7; // Hız
-            const lift = 0.1 + p * 0.4;  // Yükseklik
-
-            // Falso Hesapla
-            const curve = aimX * 0.02; 
-
-            ballPhysics.vel.set(aimX * 0.4, lift, -speed);
-            ballPhysics.curve = curve;
-
-            reactGoalkeeper();
-
-            power = 0;
-            document.getElementById('powerFill').style.width = '0%';
-        }
-
-        function reactGoalkeeper() {
-            // Kaleci yapay zekası
-            const targetX = aimX * 4 + (Math.random() - 0.5) * 1.5;
-            
-            const interval = setInterval(() => {
-                if(!isShooting) { clearInterval(interval); return; }
-                
-                // Hedefe git
-                goalkeeper.position.x += (targetX - goalkeeper.position.x) * 0.08;
-                
-                // Top yaklaştığında zıpla
-                if(ballPhysics.pos.z < -12) {
-                    goalkeeper.position.y = 0.95 + Math.abs(Math.sin(Date.now() * 0.02)) * 0.8;
-                    // Yere yatma efekti
-                    goalkeeper.rotation.z = -aimX * 0.8; 
-                }
-            }, 16);
-        }
-
-        function checkCollision() {
-            const bp = ballPhysics.pos;
-
-            // 1. ZEMİN (Top radius yaklaşık 0.5-0.6 arası sayılırsa)
-            if (bp.y < BALL_START_Y) {
-                bp.y = BALL_START_Y;
-                ballPhysics.vel.y *= -0.6; // Zıpla
-                ballPhysics.vel.x *= 0.9;
-                ballPhysics.vel.z *= 0.9;
-                ballPhysics.curve *= 0.5;
+            } catch (err) {
+                alert("Kamera/Mikrofon izni verilmedi veya cihaz bulunamadı!");
             }
-
-            // 2. KALECİ
-            const dist = bp.distanceTo(goalkeeper.position);
-            if (dist < 1.8 && bp.z < -18 && bp.z > -20) {
-                showMessage("KURTARDI!", "#00ccff");
-                ballPhysics.vel.z = 0.5; // Geri dön
-                ballPhysics.vel.y = 0.3;
-                return true;
-            }
-
-            // 3. GOL
-            if (bp.z < -20 && bp.z > -22) {
-                if (Math.abs(bp.x) < 3.6 && bp.y < 2.4) {
-                    showMessage("GOOOL!", "#FFD700");
-                    score++;
-                    document.getElementById('score').textContent = score;
-                    ballPhysics.vel.multiplyScalar(0.2);
-                    return true;
-                }
-            }
-            
-            // 4. DIŞARI
-            if(bp.z < -25 || Math.abs(bp.x) > 15) {
-                setTimeout(resetBall, 1000);
-                return true;
-            }
-            return false;
         }
 
-        function showMessage(text, color) {
-            const el = document.getElementById('message');
-            el.textContent = text;
-            el.style.color = color;
-            el.style.transform = "translate(-50%, -50%) scale(1)";
-            setTimeout(() => {
-                el.style.transform = "translate(-50%, -50%) scale(0)";
-                resetBall();
-            }, 2000);
+        function showMyVideo(stream) {
+            myVideoStream = stream;
+            const video = document.getElementById('my-video');
+            video.style.display = 'block';
+            video.srcObject = stream;
         }
 
-        function resetBall() {
-            isShooting = false;
-            ballPhysics.pos.set(0, BALL_START_Y, 0);
-            ballPhysics.vel.set(0,0,0);
-            ballPhysics.curve = 0;
-            
-            if(ballModel) {
-                ballModel.position.copy(ballPhysics.pos);
-                ballModel.rotation.set(0,0,0);
-            }
-            if(goalkeeper) {
-                goalkeeper.position.set(0, 0, -19);
-                goalkeeper.rotation.set(0,0,0);
-            }
-            
-            camera.position.set(0, 3, 13);
-            camera.lookAt(0, 2, -15);
-            aimX = 0;
-            updateAimUI();
-        }
-
-        function resetGame() {
-            score = 0; attempts = 0;
-            document.getElementById('score').textContent = 0;
-            document.getElementById('attempts').textContent = 0;
-            resetBall();
-        }
-
-        function animate() {
-            requestAnimationFrame(animate);
-            if (!isGameReady) return;
-
-            if (isPowering) {
-                power += powerDir;
-                if(power >= 100 || power <= 0) powerDir *= -1;
-                document.getElementById('powerFill').style.width = power + '%';
-            }
-
-            if (isShooting) {
-                ballPhysics.vel.y -= 0.015; // Yerçekimi
-                ballPhysics.vel.x += ballPhysics.curve; // Falso
-                
-                ballPhysics.pos.add(ballPhysics.vel);
-
-                if (ballModel) {
-                    ballModel.position.copy(ballPhysics.pos);
-                    // Dönüş efekti
-                    ballModel.rotation.x -= ballPhysics.vel.z; 
-                    ballModel.rotation.y -= ballPhysics.curve * 3;
-                }
-
-                // Kamera Takibi
-                camera.position.x += (ballPhysics.pos.x - camera.position.x) * 0.1;
-                camera.position.z = ballPhysics.pos.z + 8;
-                camera.lookAt(ballPhysics.pos);
-
-                checkCollision();
-            }
-
-            renderer.render(scene, camera);
+        function showOtherVideo(stream) {
+            const video = document.getElementById('other-video');
+            video.style.display = 'block';
+            video.srcObject = stream;
         }
     </script>
 </body>

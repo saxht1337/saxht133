@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Sistem Yönetimi (Admin)</title>
+    <style>
+        body { background: #0B0F19; color: white; font-family: sans-serif; padding: 40px; }
+        .header { border-bottom: 2px solid #EF4444; padding-bottom: 10px; margin-bottom: 20px; color: #EF4444; }
+        .panel { background: #1E293B; padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #334155; }
+        input { padding: 10px; border-radius: 5px; border: none; background: #0F172A; color: white; margin-right: 10px; }
+        button { padding: 10px 15px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; color: white; }
+        .btn-vip { background: #F59E0B; }
+        .btn-ban { background: #EF4444; }
+        #user-list { margin-top: 20px; background: #0F172A; padding: 15px; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <h1 class="header">🛡️ YÖNETİCİ PANELİ</h1>
+    
+    <div class="panel">
+        <h3>Kullanıcı İşlemleri</h3>
+        <p style="color: gray; font-size: 14px; margin-bottom: 15px;">İşlem yapmak istediğiniz kullanıcı adını girin.</p>
+        
+        <input type="text" id="target-user" placeholder="Kullanıcı Adı">
+        <button class="btn-vip" onclick="islemYap('vip')">💎 VIP Ver / Al</button>
+        <button class="btn-ban" onclick="islemYap('ban')">🔨 Ban At / Kaldır</button>
+    </div>
+
+    <div class="panel">
+        <h3>Veritabanındaki Hesaplar</h3>
+        <button onclick="kullanicilariGetir()" style="background:#38BDF8;">Listeyi Yenile</button>
+        <div id="user-list">Listeyi görmek için yenileye bas.</div>
+    </div>
+
+    <script>
+        // Sayfa açıldığında gerçekten admin mi diye kontrol et!
+        if(localStorage.getItem('activeUser') !== 'tutus' || localStorage.getItem('isAdmin') !== 'true') {
+            document.body.innerHTML = "<h1 style='color:red; text-align:center;'>YETKİSİZ GİRİŞ!</h1>";
+            setTimeout(() => { window.location.href = "login.html"; }, 2000);
+        }
+
+        function islemYap(tip) {
+            const target = document.getElementById('target-user').value.trim();
+            if(!target) return alert("Bir kullanıcı adı girin!");
+
+            let db = JSON.parse(localStorage.getItem('winterDB')) || {};
+            
+            if(!db[target]) return alert("Veritabanında böyle bir kullanıcı yok!");
+
+            if(tip === 'vip') {
+                db[target].isVip = !db[target].isVip; // Durumu tersine çevir
+                alert(`${target} adlı kullanıcının VIP durumu: ${db[target].isVip ? 'AKTİF' : 'KAPALI'}`);
+            } else if (tip === 'ban') {
+                db[target].isBanned = !db[target].isBanned;
+                alert(`${target} adlı kullanıcının BAN durumu: ${db[target].isBanned ? 'BANLANDI' : 'KALDIRILDI'}`);
+            }
+
+            // Veritabanını kaydet
+            localStorage.setItem('winterDB', JSON.stringify(db));
+            kullanicilariGetir(); // Listeyi güncelle
+        }
+
+        function kullanicilariGetir() {
+            let db = JSON.parse(localStorage.getItem('winterDB')) || {};
+            let liste = "";
+            for (let user in db) {
+                let vipDurum = db[user].isVip ? "💎 VIP" : "Üye";
+                let banDurum = db[user].isBanned ? "❌ BANLI" : "Temiz";
+                liste += `<p><b>${user}</b> - Şifre: ${db[user].password} | Durum: ${vipDurum} | Sicil: ${banDurum}</p>`;
+            }
+            document.getElementById('user-list').innerHTML = liste || "Henüz kayıtlı kullanıcı yok.";
+        }
+    </script>
+</body>
+</html>

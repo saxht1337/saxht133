@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>WinterChat - Giriş</title>
+    <style>
+        body { background: #0F172A; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .box { background: #1E293B; padding: 40px; border-radius: 15px; width: 300px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border: 1px solid #334155; }
+        input { width: 90%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; background: #0F172A; color: white; outline: none; }
+        button { width: 100%; padding: 12px; background: #22C55E; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        button:hover { background: #16A34A; }
+        a { color: #94A3B8; font-size: 14px; text-decoration: none; display: block; margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2 style="color: #22C55E; margin-bottom: 20px;">Giriş Yap</h2>
+        
+        <input type="text" id="log-user" placeholder="Kullanıcı Adı">
+        <input type="password" id="log-pass" placeholder="Şifre">
+        <button onclick="girisYap()">Sisteme Gir</button>
+        <a href="register.html">Hesabın yok mu? Kayıt Ol</a>
+    </div>
+
+    <script>
+        function girisYap() {
+            const user = document.getElementById('log-user').value.trim();
+            const pass = document.getElementById('log-pass').value.trim();
+
+            // SÜPER ADMİN GİRİŞİ (Senin belirlediğin gizli şifre)
+            if(user === "tutus" && pass === "aliomer") {
+                localStorage.setItem('activeUser', 'tutus');
+                localStorage.setItem('isAdmin', 'true');
+                alert("Hoş geldin Yönetici!");
+                window.location.href = "admin.html"; // Admin paneline at
+                return;
+            }
+
+            // Normal Kullanıcı Kontrolü
+            let db = JSON.parse(localStorage.getItem('winterDB')) || {};
+
+            if(!db[user]) return alert("Böyle bir hesap bulunamadı!");
+            if(db[user].password !== pass) return alert("Şifre yanlış!");
+            if(db[user].isBanned) return alert("BU HESAP SİSTEMDEN BANLANMIŞTIR!");
+
+            // Başarılı giriş
+            localStorage.setItem('activeUser', user);
+            localStorage.setItem('isAdmin', 'false');
+            alert("Giriş başarılı!");
+            
+            // Buraya ana uygulamanın adını yazmalısın (Örn: index.html)
+            window.location.href = "index.html"; 
+        }
+    </script>
+</body>
+</html>

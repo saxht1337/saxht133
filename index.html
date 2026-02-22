@@ -3,207 +3,226 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WinterChat v2.0 - Pro Edition</title>
+    <title>WinterChat v3 - VIP Sürümü</title>
     <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
     <style>
-        /* Modern Kış Teması & Animasyonlar */
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        /* Modern, Karanlık Tema ve Animasyonlar */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { 
-            height: 100vh; display: flex; justify-content: center; align-items: center; 
-            background: radial-gradient(circle at center, #1A365D 0%, #0B192C 100%); 
-            color: #f1f5f9; overflow: hidden; position: relative;
+            height: 100vh; display: flex; background-color: #0F172A; color: #F8FAFC; overflow: hidden;
         }
 
-        /* Kar Efekti */
-        #snow-container { position: absolute; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
-        .snowflake { position: absolute; background: white; border-radius: 50%; opacity: 0.6; animation: fall linear infinite; }
-        @keyframes fall { to { transform: translateY(100vh); } }
-
-        /* Ana Çerçeve */
-        .app-container {
-            width: 1050px; height: 650px; z-index: 10;
-            background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; 
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            display: flex; overflow: hidden;
-        }
-
-        /* Sol Panel - Kontroller */
+        /* --- SOL MENÜ (KOLAY NAVİGASYON) --- */
         .sidebar {
-            width: 320px; background: rgba(0, 0, 0, 0.3); padding: 25px;
-            display: flex; flex-direction: column; gap: 20px; border-right: 1px solid rgba(255,255,255,0.05);
+            width: 280px; background-color: #1E293B; display: flex; flex-direction: column; 
+            border-right: 1px solid #334155; z-index: 10;
         }
-        .logo { font-size: 28px; font-weight: 800; text-align: center; color: #E0F2FE; letter-spacing: 1px; }
-        .logo span { color: #38BDF8; }
-        
-        .box { background: rgba(255,255,255,0.05); padding: 18px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); }
-        .box h3 { font-size: 13px; color: #94A3B8; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
-        .my-id { font-size: 22px; font-weight: bold; background: rgba(0,0,0,0.4); padding: 12px; border-radius: 10px; text-align: center; letter-spacing: 3px; color: #38BDF8; cursor: pointer; transition: 0.2s;}
-        .my-id:hover { background: rgba(0,0,0,0.6); }
-        
-        input { width: 100%; padding: 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white; font-weight: bold; outline: none; margin-bottom: 12px; transition: 0.3s;}
-        input:focus { border-color: #38BDF8; background: rgba(0,0,0,0.4); }
-        
-        button { 
-            width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: bold; font-size: 15px; cursor: pointer;
-            background: #0284C7; color: white; transition: 0.2s;
+        .logo-area { padding: 25px 20px; font-size: 24px; font-weight: 900; letter-spacing: 1px; border-bottom: 1px solid #334155; }
+        .logo-area span { color: #38BDF8; }
+        .logo-area.vip span { color: #F59E0B; text-shadow: 0 0 10px rgba(245, 158, 11, 0.5); } /* VIP Rengi */
+
+        .menu-items { flex: 1; padding: 20px 10px; display: flex; flex-direction: column; gap: 5px; }
+        .menu-btn {
+            padding: 15px 20px; border-radius: 12px; cursor: pointer; font-weight: bold; color: #94A3B8; 
+            display: flex; align-items: center; gap: 10px; transition: 0.2s;
         }
-        button:hover { background: #0369A1; transform: translateY(-2px); }
-        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
-        .btn-group button { font-size: 13px; padding: 10px; }
-        .btn-green { background: #16A34A; } .btn-green:hover { background: #15803D; }
-        .btn-purple { background: #7C3AED; } .btn-purple:hover { background: #6D28D9; }
-
-        .video-container { display: flex; flex-direction: column; gap: 10px; margin-top: auto; position: relative;}
-        video { width: 100%; border-radius: 12px; background: #000; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-        #my-video { position: absolute; width: 30%; bottom: 10px; right: 10px; border: 2px solid rgba(255,255,255,0.2); }
-
-        /* Sağ Panel - İçerik (Sohbet & Tahta) */
-        .content-area { flex: 1; display: flex; flex-direction: column; background: rgba(15, 23, 42, 0.2); }
+        .menu-btn:hover { background-color: #334155; color: white; }
+        .menu-btn.active { background-color: #38BDF8; color: white; }
         
-        /* Sekmeler */
-        .tabs { display: flex; background: rgba(0,0,0,0.2); border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .tab { flex: 1; padding: 18px; text-align: center; font-weight: bold; cursor: pointer; color: #94A3B8; transition: 0.3s; }
-        .tab:hover { color: white; background: rgba(255,255,255,0.02); }
-        .tab.active { color: #38BDF8; border-bottom: 2px solid #38BDF8; background: rgba(56, 189, 248, 0.05); }
+        /* Nitro/VIP Butonu Özel Tasarım */
+        .menu-btn.premium-btn { 
+            background: linear-gradient(45deg, #F59E0B, #D97706); color: white; 
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3); margin-top: auto; animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
 
-        /* Sohbet Ekranı */
-        #chat-section { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-        .messages { flex: 1; padding: 25px; overflow-y: auto; display: flex; flex-direction: column; gap: 18px; }
+        /* Kullanıcı Profili (Sol Alt) */
+        .profile-area { padding: 20px; background-color: #0F172A; display: flex; flex-direction: column; gap: 10px; border-top: 1px solid #334155; }
+        .my-id-box { 
+            background: #1E293B; padding: 10px; border-radius: 8px; text-align: center; font-weight: bold; 
+            letter-spacing: 2px; color: #38BDF8; border: 1px dashed #475569; cursor: pointer;
+        }
+        .vip-badge { display: none; background: #F59E0B; color: black; font-size: 10px; padding: 2px 6px; border-radius: 4px; vertical-align: middle; margin-left: 5px; font-weight: 900;}
+
+        /* --- ANA İÇERİK ALANI --- */
+        .main-content { flex: 1; display: flex; flex-direction: column; position: relative; }
         
-        .msg { max-width: 75%; padding: 14px 18px; border-radius: 18px; font-size: 15px; line-height: 1.5; box-shadow: 0 2px 5px rgba(0,0,0,0.1);}
-        .msg.me { align-self: flex-end; background: #0284C7; border-bottom-right-radius: 4px; }
-        .msg.other { align-self: flex-start; background: rgba(255,255,255,0.08); border-bottom-left-radius: 4px; border: 1px solid rgba(255,255,255,0.05); }
-        .msg img { max-width: 100%; border-radius: 10px; margin-top: 8px; }
-        .msg-time { font-size: 11px; opacity: 0.7; margin-top: 5px; text-align: right; }
+        /* Reklam Alanı (Google AdSense için yer) */
+        .ad-banner {
+            background-color: #1E293B; border-bottom: 1px solid #334155; padding: 10px;
+            display: flex; justify-content: center; align-items: center; height: 60px;
+            color: #64748B; font-size: 14px; font-weight: bold; letter-spacing: 2px;
+        }
 
-        .input-area { padding: 20px 25px; background: rgba(0,0,0,0.3); display: flex; gap: 12px; align-items: center;}
-        .file-label { background: rgba(255,255,255,0.05); padding: 14px; border-radius: 10px; cursor: pointer; transition: 0.2s; }
-        .file-label:hover { background: rgba(255,255,255,0.1); }
-        #file-input { display: none; }
+        /* Sayfalar (Sekmeler) */
+        .page { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+        .page.active { display: flex; }
 
-        /* Taktik Tahtası Ekranı */
-        #board-section { flex: 1; display: none; flex-direction: column; padding: 20px; }
-        .board-controls { display: flex; gap: 10px; margin-bottom: 15px; }
-        .color-btn { width: 30px; height: 30px; border-radius: 50%; border: 2px solid white; cursor: pointer; }
-        canvas { flex: 1; background: rgba(0,0,0,0.4); border-radius: 12px; cursor: crosshair; border: 1px solid rgba(255,255,255,0.1); }
+        /* -- 1. BAĞLANTI & SOHBET SAYFASI -- */
+        .connect-bar { padding: 20px; background: #1E293B; display: flex; gap: 10px; align-items: center; border-bottom: 1px solid #334155; }
+        .connect-bar input { flex: 1; padding: 12px; border-radius: 8px; border: none; background: #0F172A; color: white; outline: none; }
+        .connect-bar button { padding: 12px 25px; border-radius: 8px; border: none; background: #38BDF8; color: white; font-weight: bold; cursor: pointer; transition: 0.2s;}
+        .connect-bar button:hover { background: #0284C7; }
 
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+        .chat-area { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        .msg { max-width: 70%; padding: 12px 16px; border-radius: 12px; font-size: 15px; line-height: 1.4; }
+        .msg.me { align-self: flex-end; background: #38BDF8; border-bottom-right-radius: 2px; }
+        .msg.me.vip-msg { background: linear-gradient(45deg, #F59E0B, #D97706); box-shadow: 0 2px 10px rgba(245, 158, 11, 0.3); } /* VIP Mesaj Rengi */
+        .msg.other { align-self: flex-start; background: #334155; border-bottom-left-radius: 2px; }
+
+        .input-area { padding: 20px; background: #1E293B; display: flex; gap: 10px; }
+        .input-area input { flex: 1; padding: 15px; border-radius: 10px; border: none; background: #0F172A; color: white; outline: none; }
+
+        /* -- 2. FROST VIP (SATIN ALMA) SAYFASI -- */
+        .vip-page-content { padding: 40px; text-align: center; overflow-y: auto; }
+        .vip-title { font-size: 36px; font-weight: 900; color: #F59E0B; margin-bottom: 20px; }
+        .vip-cards { display: flex; justify-content: center; gap: 30px; margin-top: 40px; }
+        .vip-card { 
+            background: #1E293B; padding: 30px; border-radius: 20px; width: 300px; 
+            border: 2px solid #334155; transition: 0.3s;
+        }
+        .vip-card:hover { border-color: #F59E0B; transform: translateY(-10px); }
+        .vip-price { font-size: 40px; font-weight: bold; margin: 20px 0; color: white; }
+        .vip-features { text-align: left; margin-bottom: 30px; line-height: 2; color: #CBD5E1; }
+        .buy-btn { width: 100%; padding: 15px; border-radius: 10px; border: none; background: #F59E0B; color: black; font-size: 18px; font-weight: bold; cursor: pointer; }
+
     </style>
 </head>
 <body>
-    <div id="snow-container"></div>
 
-    <div class="app-container">
-        <div class="sidebar">
-            <div class="logo">❄️ Winter<span>Chat</span></div>
-            
-            <div class="box">
-                <h3>Senin Kodun (Tıkla Kopyala)</h3>
-                <div class="my-id" id="my-id" onclick="copyId()">Yükleniyor...</div>
-            </div>
-
-            <div class="box">
-                <h3>Bağlantı Kur</h3>
-                <input type="text" id="friend-id-input" placeholder="Arkadaşının Kodunu Gir" autocomplete="off">
-                <button onclick="connectToFriend()">Sohbete Bağlan</button>
-                <div class="btn-group">
-                    <button class="btn-green" onclick="startVideoCall()">Kamera Aç</button>
-                    <button class="btn-purple" onclick="startScreenShare()">Ekran Paylaş</button>
-                </div>
-            </div>
-
-            <div class="video-container">
-                <video id="other-video" autoplay playsinline></video>
-                <video id="my-video" autoplay playsinline muted></video>
-            </div>
+    <div class="sidebar">
+        <div class="logo-area" id="logo">❄️ Winter<span>Chat</span></div>
+        
+        <div class="menu-items">
+            <div class="menu-btn active" onclick="changePage('chatPage', this)">💬 Sohbet & Bağlantı</div>
+            <div class="menu-btn" onclick="changePage('boardPage', this)">🗺️ Taktik Tahtası</div>
+            <div class="menu-btn premium-btn" id="vipMenuBtn" onclick="changePage('vipPage', this)">💎 Frost VIP Al</div>
         </div>
 
-        <div class="content-area">
-            <div class="tabs">
-                <div class="tab active" onclick="switchTab('chat')">💬 Sohbet</div>
-                <div class="tab" onclick="switchTab('board')">🗺️ Ortak Taktik Tahtası</div>
-            </div>
-
-            <div id="chat-section">
-                <div class="messages" id="chat-box">
-                    <div class="msg other" style="align-self: center; background: transparent; border: none; opacity: 0.5;">
-                        Bağlantı bekleniyor...
-                    </div>
-                </div>
-                <div class="input-area">
-                    <label class="file-label" title="Resim/Dosya Gönder">
-                        📎 <input type="file" id="file-input" onchange="sendFile(this)">
-                    </label>
-                    <input type="text" id="msg-input" placeholder="Mesaj gönder..." onkeypress="handleEnter(event)">
-                    <button style="width: 100px;" onclick="sendMessage()">Gönder</button>
-                </div>
-            </div>
-
-            <div id="board-section">
-                <div class="board-controls">
-                    <div class="color-btn" style="background: #ef4444;" onclick="changeColor('#ef4444')"></div>
-                    <div class="color-btn" style="background: #3b82f6;" onclick="changeColor('#3b82f6')"></div>
-                    <div class="color-btn" style="background: #22c55e;" onclick="changeColor('#22c55e')"></div>
-                    <div class="color-btn" style="background: #eab308;" onclick="changeColor('#eab308')"></div>
-                    <div class="color-btn" style="background: #ffffff;" onclick="changeColor('#ffffff')"></div>
-                    <button style="width: auto; padding: 5px 15px; margin-left: auto;" onclick="clearBoard()">Tahtayı Temizle</button>
-                </div>
-                <canvas id="tactic-board"></canvas>
+        <div class="profile-area">
+            <div style="font-size: 12px; color: #94A3B8;">Senin Kodun:</div>
+            <div class="my-id-box" id="my-id" onclick="copyId()">Yükleniyor...</div>
+            <div style="font-size: 14px; font-weight: bold; margin-top: 10px;">
+                Durum: <span id="conn-status" style="color: #EF4444;">Bağlı Değil</span>
+                <span class="vip-badge" id="myVipBadge">VIP</span>
             </div>
         </div>
     </div>
 
+    <div class="main-content">
+        
+        <div class="ad-banner" id="adBanner">
+            [GOOGLE ADSENSE REKLAM ALANI - Tıklama Başına Para Kazan]
+        </div>
+
+        <div id="chatPage" class="page active">
+            <div class="connect-bar">
+                <input type="text" id="friend-id-input" placeholder="Arkadaşının Kodunu Gir...">
+                <button onclick="connectToFriend()">Bağlan</button>
+            </div>
+            
+            <div class="chat-area" id="chat-box">
+                <div class="msg other" style="align-self: center; background: transparent;">Bağlantı Bekleniyor...</div>
+            </div>
+
+            <div class="input-area">
+                <input type="text" id="msg-input" placeholder="Mesaja yaz..." onkeypress="handleEnter(event)">
+                <button onclick="sendMessage()" style="padding: 0 25px; border-radius: 10px; border: none; background: #38BDF8; color: white; font-weight: bold; cursor:pointer;">Gönder</button>
+            </div>
+        </div>
+
+        <div id="boardPage" class="page">
+            <div style="padding: 20px; color: white; text-align: center; margin-top: 50px;">
+                <h2>🗺️ Ortak Tahta (Yakında)</h2>
+                <p style="color: #64748B; margin-top: 10px;">Burası maç öncesi taktik çizme alanı olacak.</p>
+            </div>
+        </div>
+
+        <div id="vipPage" class="page">
+            <div class="vip-page-content">
+                <div class="vip-title">💎 Frost VIP Ayrıcalıkları</div>
+                <p style="color: #94A3B8; font-size: 18px;">Uygulamayı reklamsız ve premium özelliklerle kullanın!</p>
+                
+                <div class="vip-cards">
+                    <div class="vip-card">
+                        <h2 style="color: #F59E0B;">Aylık VIP</h2>
+                        <div class="vip-price">₺49<span style="font-size: 16px; color:#64748B;">/ay</span></div>
+                        <div class="vip-features">
+                            ✔️ Tamamen Reklamsız Deneyim<br>
+                            ✔️ İsminin Yanında VIP Rozeti<br>
+                            ✔️ Sohbet Baloncuğu Altın Renk Olur<br>
+                            ✔️ Yüksek Kalite Ekran Paylaşımı
+                        </div>
+                        <button class="buy-btn" onclick="buyVIP()">Şimdi Satın Al</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
     <script>
-        // --- KAR EFEKTİ ---
-        function createSnow() {
-            const container = document.getElementById('snow-container');
-            for(let i=0; i<60; i++) {
-                let flake = document.createElement('div');
-                flake.className = 'snowflake';
-                let size = Math.random() * 4 + 2;
-                flake.style.width = size + 'px'; flake.style.height = size + 'px';
-                flake.style.left = Math.random() * 100 + 'vw';
-                flake.style.animationDuration = Math.random() * 3 + 3 + 's';
-                flake.style.animationDelay = Math.random() * 2 + 's';
-                container.appendChild(flake);
+        // --- 1. VIP (PREMİUM) SİSTEMİ MANTIĞI ---
+        // Tarayıcının hafızasına bakar, daha önce VIP alınmış mı kontrol eder
+        let isVIP = localStorage.getItem('isWinterVIP') === 'true';
+
+        function checkVIPStatus() {
+            if(isVIP) {
+                document.getElementById('adBanner').style.display = 'none'; // Reklamları gizle
+                document.getElementById('myVipBadge').style.display = 'inline-block'; // Rozeti göster
+                document.getElementById('logo').classList.add('vip'); // Logoyu altın yap
+                document.getElementById('vipMenuBtn').innerHTML = "💎 VIP Aktif"; // Menü yazısını değiştir
             }
         }
-        createSnow();
+        checkVIPStatus(); // Sayfa açıldığında kontrol et
 
-        // --- SEKME DEĞİŞTİRME ---
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
-            document.getElementById('chat-section').style.display = tabName === 'chat' ? 'flex' : 'none';
-            document.getElementById('board-section').style.display = tabName === 'board' ? 'flex' : 'none';
-            if(tabName === 'board') resizeCanvas(); // Tahta açılınca boyutunu ayarla
+        function buyVIP() {
+            // Burası normalde Shopier/Patreon linkine yönlendirir. 
+            // Şimdilik simülasyon yapıyoruz.
+            alert("Ödeme sayfasına yönlendiriliyorsunuz... (Simülasyon)");
+            
+            // Satın alım başarılı varsayalım:
+            localStorage.setItem('isWinterVIP', 'true');
+            isVIP = true;
+            checkVIPStatus();
+            alert("Tebrikler! Frost VIP hesabınıza tanımlandı. Artık reklamsızsınız!");
+            changePage('chatPage', document.querySelector('.menu-btn')); // Sohbete at
         }
 
-        // --- P2P AĞ BAĞLANTISI ---
-        const myShortCode = 'WNTR-' + Math.floor(1000 + Math.random() * 9000); // Örn: WNTR-4829
+
+        // --- 2. SAYFA (SEKME) DEĞİŞTİRME MANTIĞI ---
+        function changePage(pageId, btnElement) {
+            // Tüm sayfaları ve buton aktifliklerini sıfırla
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+            
+            // Seçileni aktif et
+            document.getElementById(pageId).classList.add('active');
+            btnElement.classList.add('active');
+        }
+
+
+        // --- 3. P2P AĞ BAĞLANTISI (PEERJS) ---
+        const myShortCode = 'WNT-' + Math.floor(1000 + Math.random() * 9000);
         const peer = new Peer(myShortCode); 
         let currentConnection = null;
-        let myStream = null;
 
         peer.on('open', (id) => {
             document.getElementById('my-id').innerText = id;
         });
 
         function copyId() {
-            navigator.clipboard.writeText(document.getElementById('my-id').innerText);
-            alert("Arkadaşlık kodun kopyalandı!");
+            navigator.clipboard.writeText(myShortCode);
+            alert("Kod Kopyalandı!");
         }
 
-        // --- BAĞLANTI OLAYLARI ---
+        // Biri bize bağlanırsa
         peer.on('connection', (conn) => {
             currentConnection = conn;
             setupEvents();
         });
 
+        // Biz birine bağlanırsak
         function connectToFriend() {
             const friendId = document.getElementById('friend-id-input').value.trim().toUpperCase();
             if (!friendId) return;
@@ -213,144 +232,43 @@
 
         function setupEvents() {
             currentConnection.on('open', () => {
-                document.getElementById('chat-box').innerHTML = `<div class="msg other" style="align-self:center; background:#16A34A;">🟢 Bağlantı Kuruldu!</div>`;
+                document.getElementById('conn-status').innerText = "🟢 Bağlı";
+                document.getElementById('conn-status').style.color = "#22C55E";
+                document.getElementById('chat-box').innerHTML = `<div class="msg other" style="align-self:center;">Sohbet Başladı!</div>`;
             });
 
             currentConnection.on('data', (data) => {
-                if(data.type === 'chat') addMessage("Arkadaş", data.content, "other", data.time);
-                else if(data.type === 'draw') drawOnCanvas(data.x, data.y, data.color, false);
-                else if(data.type === 'startDraw') { ctx.beginPath(); ctx.moveTo(data.x, data.y); }
-                else if(data.type === 'clearBoard') ctx.clearRect(0, 0, canvas.width, canvas.height);
+                if(data.type === 'chat') {
+                    // Karşıdan gelen mesaj. Eğer karşı taraf VIP ise rengini ayarlayabiliriz.
+                    addMessage("Arkadaş", data.content, "other", data.isVip);
+                }
             });
         }
 
-        // --- SOHBET SİSTEMİ ---
-        function getTime() {
-            const now = new Date();
-            return now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
-        }
-
+        // --- 4. SOHBET GÖNDERME ---
         function sendMessage() {
             const input = document.getElementById('msg-input');
             const text = input.value.trim();
             if(!text || !currentConnection) return;
 
-            const time = getTime();
-            currentConnection.send({ type: 'chat', content: text, time: time });
-            addMessage("Sen", text, "me", time);
+            // Kendi VIP durumumuzu da karşıya gönderiyoruz ki onun ekranında şekilli duralım
+            currentConnection.send({ type: 'chat', content: text, isVip: isVIP });
+            addMessage("Sen", text, "me", isVIP);
             input.value = '';
         }
 
         function handleEnter(e) { if(e.key === 'Enter') sendMessage(); }
 
-        function sendFile(input) {
-            const file = input.files[0];
-            if(!file || !currentConnection) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const dataUrl = e.target.result;
-                const content = file.type.startsWith('image/') ? `<img src="${dataUrl}">` : `📄 Dosya Gönderildi: ${file.name}`;
-                const time = getTime();
-                currentConnection.send({ type: 'chat', content: content, time: time });
-                addMessage("Sen", content, "me", time);
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function addMessage(sender, content, type, time) {
+        function addMessage(sender, content, type, senderIsVip) {
             const box = document.getElementById('chat-box');
+            // Eğer gönderen VIP ise mesaja özel class ekle
+            let vipClass = senderIsVip ? 'vip-msg' : '';
+            
             box.innerHTML += `
-                <div class="msg ${type}">
-                    <div>${content}</div>
-                    <div class="msg-time">${time}</div>
+                <div class="msg ${type} ${vipClass}">
+                    ${senderIsVip && type==='other' ? '💎 ' : ''}${content}
                 </div>`;
             box.scrollTop = box.scrollHeight;
-        }
-
-        // --- GÖRÜNTÜ VE EKRAN PAYLAŞIMI ---
-        peer.on('call', async (call) => {
-            if(confirm("Gelen bir arama/ekran paylaşımı var, kabul ediyor musun?")) {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                document.getElementById('my-video').srcObject = stream;
-                call.answer(stream);
-                call.on('stream', (otherStream) => {
-                    document.getElementById('other-video').srcObject = otherStream;
-                });
-            }
-        });
-
-        async function startVideoCall() {
-            if(!currentConnection) return alert("Önce bağlanmalısın!");
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-            makeCall(stream);
-        }
-
-        async function startScreenShare() {
-            if(!currentConnection) return alert("Önce bağlanmalısın!");
-            const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
-            makeCall(stream);
-        }
-
-        function makeCall(stream) {
-            document.getElementById('my-video').srcObject = stream;
-            const call = peer.call(currentConnection.peer, stream);
-            call.on('stream', (otherStream) => {
-                document.getElementById('other-video').srcObject = otherStream;
-            });
-        }
-
-        // --- İNTERAKTİF TAKTİK TAHTASI (CANVAS) ---
-        const canvas = document.getElementById('tactic-board');
-        const ctx = canvas.getContext('2d');
-        let isDrawing = false;
-        let brushColor = '#ef4444';
-
-        function resizeCanvas() {
-            canvas.width = canvas.parentElement.clientWidth - 40;
-            canvas.height = canvas.parentElement.clientHeight - 80;
-        }
-        window.onresize = resizeCanvas;
-
-        function changeColor(color) { brushColor = color; }
-
-        function clearBoard() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            if(currentConnection) currentConnection.send({ type: 'clearBoard' });
-        }
-
-        function getMousePos(evt) {
-            const rect = canvas.getBoundingClientRect();
-            return {
-                x: (evt.clientX - rect.left) / (rect.right - rect.left) * canvas.width,
-                y: (evt.clientY - rect.top) / (rect.bottom - rect.top) * canvas.height
-            };
-        }
-
-        canvas.addEventListener('mousedown', (e) => {
-            isDrawing = true;
-            const pos = getMousePos(e);
-            ctx.beginPath();
-            ctx.moveTo(pos.x, pos.y);
-            if(currentConnection) currentConnection.send({ type: 'startDraw', x: pos.x, y: pos.y });
-        });
-
-        canvas.addEventListener('mousemove', (e) => {
-            if (!isDrawing) return;
-            const pos = getMousePos(e);
-            drawOnCanvas(pos.x, pos.y, brushColor, true);
-        });
-
-        canvas.addEventListener('mouseup', () => isDrawing = false);
-        canvas.addEventListener('mouseout', () => isDrawing = false);
-
-        function drawOnCanvas(x, y, color, emit) {
-            ctx.lineWidth = 3;
-            ctx.lineCap = 'round';
-            ctx.strokeStyle = color;
-            ctx.lineTo(x, y);
-            ctx.stroke();
-            if (!emit || !currentConnection) return;
-            currentConnection.send({ type: 'draw', x: x, y: y, color: color });
         }
     </script>
 </body>

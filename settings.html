@@ -6,12 +6,17 @@
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background: #0F172A; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .box { background: #1E293B; padding: 40px; border-radius: 15px; width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #334155; }
+        .box { background: #1E293B; padding: 40px; border-radius: 15px; width: 450px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #334155; }
         .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #334155; padding-bottom: 15px; margin-bottom: 25px; }
         .title { color: #38BDF8; font-size: 20px; font-weight: bold; }
         label { display: block; color: #94A3B8; font-size: 13px; margin-bottom: 8px; font-weight: bold; }
-        input { width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #475569; background: #0B0F19; color: white; outline: none; }
-        input:disabled { opacity: 0.6; cursor: not-allowed; }
+        input { width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #475569; background: #0B0F19; color: white; outline: none; transition: 0.3s;}
+        input:focus { border-color: #38BDF8; }
+        input:disabled { opacity: 0.5; cursor: not-allowed; border-color: #334155; }
+        
+        .vip-lock { color: #F59E0B; font-size: 12px; float: right; }
+        .vip-input { border: 1px solid #F59E0B !important; background: rgba(245, 158, 11, 0.05) !important; }
+        
         button { width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; margin-bottom: 10px; }
         .btn-save { background: #22C55E; color: white; }
         .btn-save:hover { background: #16A34A; }
@@ -31,26 +36,52 @@
         <label>Yeni Şifre Belirle</label>
         <input type="password" id="new-pass" placeholder="En az 4 karakter girin...">
         
-        <button class="btn-save" onclick="sifreGuncelle()">Şifreyi Güncelle</button>
+        <div style="margin-top: 10px; padding-top: 20px; border-top: 1px dashed #334155;">
+            <label>Profil Resmi (URL) <span class="vip-lock" id="vip-status-text">🔒 Sadece VIP</span></label>
+            <input type="text" id="avatar-url" placeholder="Resim veya GIF linki yapıştırın..." disabled>
+            <div style="font-size: 11px; color: #64748B; margin-top: -15px; margin-bottom: 20px;">Örn: https://resim-linki.com/logo.png</div>
+        </div>
+        
+        <button class="btn-save" onclick="ayarlariKaydet()">Ayarları Kaydet</button>
         <button class="btn-back" onclick="window.location.href='index.html'">Ana Sayfaya Dön</button>
     </div>
 
     <script>
         const activeUser = localStorage.getItem('activeUser');
-        if(!activeUser) window.location.href = 'login.html'; // Güvenlik duvarı
+        if(!activeUser) window.location.href = 'login.html';
+
+        let db = JSON.parse(localStorage.getItem('winterDB'));
+        let acc = db[activeUser];
+        let isVIP = acc.isVip || localStorage.getItem('isAdmin') === 'true';
 
         document.getElementById('user-display').value = activeUser;
 
-        function sifreGuncelle() {
+        // Eğer VIP ise avatar kutusunun kilidini aç
+        if(isVIP) {
+            const avatarInput = document.getElementById('avatar-url');
+            avatarInput.disabled = false;
+            avatarInput.classList.add('vip-input');
+            document.getElementById('vip-status-text').innerText = "💎 VIP Aktif";
+            // Eskiden koyduğu bir resim varsa kutuya yazdır
+            if(acc.avatar) avatarInput.value = acc.avatar;
+        }
+
+        function ayarlariKaydet() {
             const newPass = document.getElementById('new-pass').value.trim();
-            if(newPass.length < 4) return alert("Şifre çok kısa! Güvenliğiniz için en az 4 karakter kullanın.");
+            const newAvatar = document.getElementById('avatar-url').value.trim();
 
-            let db = JSON.parse(localStorage.getItem('winterDB'));
-            db[activeUser].password = newPass; // Veritabanındaki şifreyi değiştir
-            localStorage.setItem('winterDB', JSON.stringify(db)); // Kaydet
+            if(newPass && newPass.length < 4) return alert("Şifre çok kısa! En az 4 karakter kullanın.");
 
-            alert("✅ Şifreniz başarıyla güncellendi!");
-            document.getElementById('new-pass').value = '';
+            if(newPass) db[activeUser].password = newPass;
+            
+            // Eğer VIP ise ve link girdiyse veritabanına kaydet
+            if(isVIP) {
+                db[activeUser].avatar = newAvatar;
+            }
+
+            localStorage.setItem('winterDB', JSON.stringify(db));
+            alert("✅ Profil ayarlarınız başarıyla güncellendi!");
+            window.location.reload();
         }
     </script>
 </body>

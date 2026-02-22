@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Winter Kasa Açılışı</title>
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: #0B0F19; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
+        
+        .header { text-align: center; margin-bottom: 40px; }
+        .title { color: #38BDF8; font-size: 32px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; }
+        .subtitle { color: #94A3B8; font-size: 14px; margin-top: 5px; }
+
+        /* Kasa Çerçevesi */
+        .case-container {
+            width: 900px;
+            height: 200px;
+            background: #1E293B;
+            border: 2px solid #334155;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 50px rgba(0,0,0,0.5);
+        }
+
+        /* Ortadaki Kırmızı Çizgi (İmleç) */
+        .marker {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 4px;
+            height: 100%;
+            background: #EF4444;
+            transform: translateX(-50%);
+            z-index: 10;
+            box-shadow: 0 0 15px #EF4444;
+        }
+
+        /* Kayan Şerit */
+        .track {
+            display: flex;
+            height: 100%;
+            /* CS:GO kayma animasyonu ayarı (yavaşlayarak durma) */
+            transition: transform 6s cubic-bezier(0.15, 0.9, 0.15, 1); 
+            will-change: transform;
+        }
+
+        /* Kasa İçindeki Eşyalar */
+        .item {
+            min-width: 150px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-right: 1px solid #0F172A;
+            background: linear-gradient(to bottom, #1E293B, #0F172A);
+            position: relative;
+        }
+        
+        .item-icon { font-size: 50px; margin-bottom: 10px; }
+        .item-name { font-weight: bold; font-size: 14px; text-align: center; padding: 0 5px; }
+        
+        /* Nadirlik Renkleri (CS2 Mantığı) */
+        .rarity-blue { border-bottom: 8px solid #3B82F6; color: #3B82F6; } /* Yaygın */
+        .rarity-purple { border-bottom: 8px solid #A855F7; color: #A855F7; } /* Nadir */
+        .rarity-pink { border-bottom: 8px solid #EC4899; color: #EC4899; } /* Destansı */
+        .rarity-gold { border-bottom: 8px solid #F59E0B; color: #F59E0B; text-shadow: 0 0 10px rgba(245,158,11,0.5); background: linear-gradient(to bottom, #451a03, #0F172A);} /* Efsanevi VIP */
+
+        .btn-open { margin-top: 40px; padding: 15px 50px; font-size: 20px; font-weight: bold; background: #22C55E; color: white; border: none; border-radius: 8px; cursor: pointer; transition: 0.2s; box-shadow: 0 5px 15px rgba(34, 197, 94, 0.3); }
+        .btn-open:hover:not(:disabled) { background: #16A34A; transform: translateY(-2px); }
+        .btn-open:disabled { background: #475569; cursor: not-allowed; box-shadow: none; }
+
+        .btn-back { margin-top: 15px; padding: 10px 30px; background: #334155; color: white; border: none; border-radius: 8px; cursor: pointer; }
+
+        /* Kazandın Ekranı (Popup) */
+        .result-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 100; flex-direction: column;}
+        .result-box { background: #1E293B; padding: 40px; border-radius: 20px; text-align: center; border: 2px solid #38BDF8; animation: popIn 0.5s ease; max-width: 400px;}
+        @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="title">🎁 Günlük Winter Kasası</div>
+        <div class="subtitle">Her gün 1 kez kasa açma hakkın var. Altın (VIP) düşürmeye çalış!</div>
+    </div>
+
+    <div class="case-container">
+        <div class="marker"></div>
+        <div class="track" id="track">
+            </div>
+    </div>
+
+    <button class="btn-open" id="openBtn" onclick="kasaAc()">Kasayı Aç</button>
+    <button class="btn-back" onclick="window.location.href='index.html'">Ana Sayfaya Dön</button>
+
+    <div class="result-modal" id="resultModal">
+        <div class="result-box" id="resultBox">
+            <h2 style="color: white; margin-bottom: 20px;">🎉 KAZANDIN!</h2>
+            <div id="winIcon" style="font-size: 70px; margin-bottom: 10px;"></div>
+            <h3 id="winName" style="font-size: 24px; margin-bottom: 20px;"></h3>
+            <p style="color: #94A3B8; font-size: 14px; margin-bottom: 20px;">Ödülünü almak için bu ekranın resmini çekip admin'e (Destek bölümünden) gönder.</p>
+            <button class="btn-open" style="margin-top:0;" onclick="window.location.reload()">Kapat</button>
+        </div>
+    </div>
+
+    <script>
+        // Yazılım Mühendisliği: Olasılık (Drop Rate) Havuzu
+        const items = [
+            { name: "50 XP", icon: "⭐", rarity: "blue", chance: 40 },
+            { name: "Sıradan Rozet", icon: "🛡️", rarity: "blue", chance: 25 },
+            { name: "Renkli İsim (1 Gün)", icon: "🌈", rarity: "purple", chance: 15 },
+            { name: "Özel Profil Çerçevesi", icon: "🖼️", rarity: "purple", chance: 12 },
+            { name: "Efsanevi Rozet", icon: "🔥", rarity: "pink", chance: 6 },
+            { name: "1 GÜNLÜK FROST VIP", icon: "💎", rarity: "gold", chance: 1.5 },
+            { name: "3 GÜNLÜK FROST VIP", icon: "👑", rarity: "gold", chance: 0.5 }
+        ];
+
+        const track = document.getElementById('track');
+        const itemWidth = 150; // CSS'deki min-width değeri
+        let generatedItems = [];
+
+        // Rastgele eşya seçici (Olasılığa göre)
+        function getRandomItem() {
+            let rand = Math.random() * 100;
+            let current = 0;
+            for (let item of items) {
+                current += item.chance;
+                if (rand <= current) return item;
+            }
+            return items[0];
+        }
+
+        // Kasa içeriğini oluştur (Şeridi doldur)
+        function initCase() {
+            // Şeride 100 tane rastgele eşya diziyoruz
+            for(let i = 0; i < 100; i++) {
+                let item = getRandomItem();
+                generatedItems.push(item);
+                
+                let div = document.createElement('div');
+                div.className = `item rarity-${item.rarity}`;
+                div.innerHTML = `
+                    <div class="item-icon">${item.icon}</div>
+                    <div class="item-name">${item.name}</div>
+                `;
+                track.appendChild(div);
+            }
+        }
+
+        // Sayfa açıldığında kasayı doldur
+        initCase();
+
+        function kasaAc() {
+            // Günde 1 kez açma kontrolü (Sanal Veritabanından)
+            const activeUser = localStorage.getItem('activeUser');
+            if(!activeUser) return alert("Önce giriş yapmalısın!");
+            
+            const today = new Date().toLocaleDateString();
+            if(localStorage.getItem(activeUser + '_lastCase') === today) {
+                return alert("Bugünkü kasa açma hakkını kullandın! Yarın tekrar gel.");
+            }
+
+            const btn = document.getElementById('openBtn');
+            btn.disabled = true;
+            btn.innerText = "Kasa Açılıyor...";
+
+            // Kazananı Belirle (75. eşya civarında dursun)
+            const winnerIndex = 75;
+            const winnerItem = generatedItems[winnerIndex];
+
+            // Kayma Matematiği
+            // Kasanın ortasına gelmesi için hesap: 
+            // (Kazananın sırası * Eşya Genişliği) - (Kasa Genişliğinin Yarısı) + (Eşya Genişliğinin Yarısı)
+            const containerCenter = 900 / 2;
+            const itemCenter = itemWidth / 2;
+            
+            // Tam ortaya değil de biraz rastgele (ucundan dönme efekti için) bir konuma dursun
+            const randomOffset = Math.floor(Math.random() * (itemWidth - 10)) - (itemWidth / 2); 
+
+            const targetPosition = (winnerIndex * itemWidth) - containerCenter + itemCenter + randomOffset;
+
+            // Şeridi kaydır (Animasyon başlar)
+            track.style.transform = `translateX(-${targetPosition}px)`;
+
+            // Animasyon (6 saniye) bitince kazandın ekranını göster
+            setTimeout(() => {
+                // Kayıt at (Günde 1 kez)
+                localStorage.setItem(activeUser + '_lastCase', today);
+                
+                const modal = document.getElementById('resultModal');
+                const box = document.getElementById('resultBox');
+                
+                document.getElementById('winIcon').innerText = winnerItem.icon;
+                document.getElementById('winName').innerText = winnerItem.name;
+                
+                // Renge göre popup çerçevesini ayarla
+                if(winnerItem.rarity === 'gold') {
+                    box.style.borderColor = '#F59E0B';
+                    document.getElementById('winName').style.color = '#F59E0B';
+                } else if(winnerItem.rarity === 'pink') {
+                    box.style.borderColor = '#EC4899';
+                    document.getElementById('winName').style.color = '#EC4899';
+                } else if(winnerItem.rarity === 'purple') {
+                    box.style.borderColor = '#A855F7';
+                    document.getElementById('winName').style.color = '#A855F7';
+                } else {
+                    box.style.borderColor = '#3B82F6';
+                    document.getElementById('winName').style.color = '#3B82F6';
+                }
+
+                modal.style.display = 'flex';
+            }, 6500); // CSS animasyonu 6s, biz 6.5s sonra açıyoruz
+        }
+    </script>
+</body>
+</html>

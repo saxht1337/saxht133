@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Sistemi Hackle (Adam Asmaca)</title>
+    <style>
+        body { background: #0B0F19; color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        h1 { color: #22C55E; font-family: monospace; letter-spacing: 2px; margin-bottom: 20px;}
+        
+        .game-box { background: #1E293B; padding: 40px; border-radius: 15px; text-align: center; border: 1px solid #334155; width: 600px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .lives { font-size: 24px; color: #EF4444; margin-bottom: 20px; letter-spacing: 5px; }
+        .word-display { font-size: 40px; letter-spacing: 15px; font-weight: bold; margin-bottom: 40px; color: #F8FAFC; font-family: monospace; }
+        
+        .keyboard { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .key { padding: 15px 20px; font-size: 18px; font-weight: bold; background: #334155; color: white; border: none; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+        .key:hover:not(:disabled) { background: #38BDF8; }
+        .key.disabled { background: #0F172A; color: #475569; cursor: not-allowed; }
+        .key.correct { background: #22C55E; color: white; }
+        .key.wrong { background: #EF4444; color: white; }
+
+        .btn-back { margin-top: 20px; padding: 10px 30px; background: transparent; border: 1px solid #475569; color: #94A3B8; border-radius: 8px; cursor: pointer; font-weight: bold;}
+        .btn-back:hover { background: #334155; color: white; }
+    </style>
+</head>
+<body>
+
+    <h1 id="main-title">>_ SİSTEMİ HACKLE</h1>
+    
+    <div class="game-box">
+        <div style="color: #94A3B8; font-size: 14px; margin-bottom: 10px;">Kalan Güvenlik Hakkın:</div>
+        <div class="lives" id="livesDisplay">❤️❤️❤️❤️❤️❤️</div>
+        <div class="word-display" id="wordDisplay">_ _ _ _</div>
+        <div class="keyboard" id="keyboard"></div>
+
+        <button class="btn-back" onclick="window.location.reload()" id="restartBtn" style="display:none; background:#38BDF8; color:white; border:none; padding: 15px 30px;">Yeniden Oyna</button>
+        <button class="btn-back" onclick="window.location.href='index.html'">Ana Sayfaya Dön</button>
+    </div>
+
+    <script>
+        const words = ["VALORANT", "FENERBAHCE", "PYTHON", "FORVET", "ROBLOX", "YAZILIM", "DISCORD", "SUNUCU", "HTML", "MUDANYA"];
+        let chosenWord = words[Math.floor(Math.random() * words.length)];
+        let guessedLetters = [];
+        let mistakes = 0;
+        const maxMistakes = 6;
+
+        function updateWordDisplay() {
+            let display = "";
+            let won = true;
+            for (let letter of chosenWord) {
+                if (guessedLetters.includes(letter)) { display += letter; } 
+                else { display += "_"; won = false; }
+            }
+            document.getElementById('wordDisplay').innerText = display;
+
+            if (won) {
+                document.getElementById('main-title').innerText = ">_ SİSTEME GİRİLDİ (KAZANDIN!)";
+                document.getElementById('main-title').style.color = "#22C55E";
+                oyunBitir();
+            }
+        }
+
+        function buildKeyboard() {
+            const keyboardDiv = document.getElementById('keyboard');
+            const letters = "ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZ".split("");
+            letters.forEach(letter => {
+                const btn = document.createElement('button');
+                btn.className = "key";
+                btn.innerText = letter;
+                btn.onclick = () => handleGuess(letter, btn);
+                keyboardDiv.appendChild(btn);
+            });
+        }
+
+        function handleGuess(letter, btnBtn) {
+            guessedLetters.push(letter);
+            if (chosenWord.includes(letter)) { btnBtn.classList.add('correct'); } 
+            else { btnBtn.classList.add('wrong'); mistakes++; updateLives(); }
+            
+            btnBtn.classList.add('disabled');
+            btnBtn.disabled = true;
+            updateWordDisplay();
+            checkLose();
+        }
+
+        function updateLives() {
+            let hearts = "";
+            for(let i = 0; i < (maxMistakes - mistakes); i++) hearts += "❤️";
+            for(let i = 0; i < mistakes; i++) hearts += "🖤"; 
+            document.getElementById('livesDisplay').innerText = hearts;
+        }
+
+        function checkLose() {
+            if (mistakes >= maxMistakes) {
+                document.getElementById('main-title').innerText = ">_ ERİŞİM ENGELLENDİ (KAYBETTİN)";
+                document.getElementById('main-title').style.color = "#EF4444";
+                document.getElementById('wordDisplay').innerText = chosenWord;
+                document.getElementById('wordDisplay').style.color = "#EF4444";
+                oyunBitir();
+            }
+        }
+
+        function oyunBitir() {
+            const keys = document.getElementsByClassName('key');
+            for(let key of keys) { key.disabled = true; key.classList.add('disabled'); }
+            document.getElementById('restartBtn').style.display = "inline-block";
+        }
+
+        buildKeyboard();
+        updateWordDisplay();
+    </script>
+</body>
+</html>

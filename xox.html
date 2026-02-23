@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Winter XOX</title>
+    <style>
+        body { background: #0F172A; color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        h1 { color: #38BDF8; margin-bottom: 10px; font-size: 36px; }
+        .status { font-size: 20px; color: #94A3B8; margin-bottom: 20px; font-weight: bold; }
+        
+        .board { display: grid; grid-template-columns: repeat(3, 100px); grid-template-rows: repeat(3, 100px); gap: 10px; background: #1E293B; padding: 15px; border-radius: 15px; border: 2px solid #334155; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .cell { background: #0F172A; border: 2px solid #334155; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 50px; cursor: pointer; transition: 0.2s; }
+        .cell:hover { background: #1E293B; border-color: #38BDF8; }
+        .cell.taken { cursor: not-allowed; }
+
+        .btn-reset { margin-top: 30px; padding: 12px 30px; background: #22C55E; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .btn-back { margin-top: 15px; padding: 10px 30px; background: #334155; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>❄️ Winter XOX</h1>
+    <div class="status" id="statusText">Sıra: Kar Tanesi (❄️)</div>
+    
+    <div class="board" id="board">
+        <div class="cell" onclick="hamle(0)"></div>
+        <div class="cell" onclick="hamle(1)"></div>
+        <div class="cell" onclick="hamle(2)"></div>
+        <div class="cell" onclick="hamle(3)"></div>
+        <div class="cell" onclick="hamle(4)"></div>
+        <div class="cell" onclick="hamle(5)"></div>
+        <div class="cell" onclick="hamle(6)"></div>
+        <div class="cell" onclick="hamle(7)"></div>
+        <div class="cell" onclick="hamle(8)"></div>
+    </div>
+
+    <button class="btn-reset" onclick="oyunuSifirla()">Yeniden Başla</button>
+    <button class="btn-back" onclick="window.location.href='index.html'">Ana Sayfaya Dön</button>
+
+    <script>
+        let tahta = ["", "", "", "", "", "", "", "", ""];
+        let sira = "❄️"; 
+        let oyunBitti = false;
+        
+        const kazanmaDurumlari = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]
+        ];
+
+        function hamle(index) {
+            if (tahta[index] !== "" || oyunBitti) return;
+            tahta[index] = sira;
+            const cells = document.getElementsByClassName('cell');
+            cells[index].innerText = sira;
+            cells[index].classList.add('taken');
+            sonucuKontrolEt();
+        }
+
+        function sonucuKontrolEt() {
+            let kazananVarMi = false;
+            for (let i = 0; i < kazanmaDurumlari.length; i++) {
+                const [a, b, c] = kazanmaDurumlari[i];
+                if (tahta[a] && tahta[a] === tahta[b] && tahta[a] === tahta[c]) { kazananVarMi = true; break; }
+            }
+
+            if (kazananVarMi) {
+                document.getElementById('statusText').innerText = `🎉 KAZANAN: ${sira}!`;
+                document.getElementById('statusText').style.color = "#F59E0B";
+                oyunBitti = true; return;
+            }
+
+            if (!tahta.includes("")) {
+                document.getElementById('statusText').innerText = "🤝 BERABERE!";
+                oyunBitti = true; return;
+            }
+
+            sira = sira === "❄️" ? "⛄" : "❄️";
+            document.getElementById('statusText').innerText = `Sıra: ${sira === '❄️' ? 'Kar Tanesi (❄️)' : 'Kardan Adam (⛄)'}`;
+        }
+
+        function oyunuSifirla() {
+            tahta = ["", "", "", "", "", "", "", "", ""];
+            sira = "❄️"; oyunBitti = false;
+            document.getElementById('statusText').innerText = "Sıra: Kar Tanesi (❄️)";
+            document.getElementById('statusText').style.color = "#94A3B8";
+            const cells = document.getElementsByClassName('cell');
+            for (let i = 0; i < cells.length; i++) { cells[i].innerText = ""; cells[i].classList.remove('taken'); }
+        }
+    </script>
+</body>
+</html>

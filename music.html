@@ -2,26 +2,29 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Winter Radyo</title>
+    <title>Winter Fenomen Radyo</title>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background: #0F172A; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .player-box { background: rgba(30, 41, 59, 0.9); backdrop-filter: blur(20px); padding: 40px; border-radius: 20px; text-align: center; border: 1px solid #334155; box-shadow: 0 10px 40px rgba(0,0,0,0.7); width: 380px; }
+        .player-box { background: rgba(30, 41, 59, 0.9); backdrop-filter: blur(20px); padding: 40px; border-radius: 20px; text-align: center; border: 1px solid #334155; box-shadow: 0 10px 40px rgba(0,0,0,0.7); width: 400px; }
         
-        .cover { width: 140px; height: 140px; background: linear-gradient(45deg, #38BDF8, #7C3AED); border-radius: 50%; margin: 0 auto 20px; display: flex; justify-content: center; align-items: center; font-size: 50px; border: 5px solid #1E293B; box-shadow: 0 0 20px rgba(56, 189, 248, 0.4); animation: spin 8s linear infinite; animation-play-state: paused; }
+        /* Albüm Kapağı Çerçevesi */
+        .cover { width: 160px; height: 160px; background: #1E293B; border-radius: 50%; margin: 0 auto 20px; display: flex; justify-content: center; align-items: center; font-size: 50px; border: 5px solid #1E293B; box-shadow: 0 0 20px rgba(56, 189, 248, 0.4); animation: spin 8s linear infinite; animation-play-state: paused; overflow: hidden;}
+        .cover img { width: 100%; height: 100%; object-fit: cover; }
         .cover.playing { animation-play-state: running; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
         
-        .song-title { font-size: 24px; font-weight: 900; margin-bottom: 5px; color: #F8FAFC; text-transform: uppercase; letter-spacing: 1px;}
-        .artist { color: #38BDF8; font-size: 13px; font-weight: bold; margin-bottom: 25px; letter-spacing: 2px;}
+        .song-title { font-size: 22px; font-weight: 900; margin-bottom: 5px; color: #F8FAFC; text-transform: uppercase; letter-spacing: 1px;}
+        .artist { color: #38BDF8; font-size: 14px; font-weight: bold; margin-bottom: 5px; letter-spacing: 1px;}
+        .channel-name { color: #94A3B8; font-size: 12px; margin-bottom: 25px; text-transform: uppercase;}
         
         /* Radyo İstasyonları */
-        .stations { display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px; }
-        .station-btn { padding: 12px; background: #1E293B; border: 1px solid #475569; color: #94A3B8; border-radius: 10px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .stations { display: flex; gap: 10px; margin-bottom: 25px; justify-content: center;}
+        .station-btn { flex: 1; padding: 12px 5px; background: #1E293B; border: 1px solid #475569; color: #94A3B8; border-radius: 10px; cursor: pointer; font-weight: bold; transition: 0.2s; font-size: 12px;}
         .station-btn:hover { background: #334155; color: white; }
         .station-btn.active { background: #38BDF8; color: white; border-color: #38BDF8; box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);}
 
-        .controls { display: flex; justify-content: center; gap: 20px; align-items: center; }
+        .controls { display: flex; justify-content: center; align-items: center; }
         .btn-play { background: #22C55E; color: white; border: none; width: 70px; height: 70px; border-radius: 50%; font-size: 28px; cursor: pointer; transition: 0.2s; box-shadow: 0 5px 15px rgba(34, 197, 94, 0.4);}
         .btn-play:hover { background: #16A34A; transform: scale(1.05); }
         .btn-play.playing { background: #EF4444; box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4); }
@@ -32,16 +35,19 @@
 </head>
 <body>
     <div class="player-box">
-        <div class="cover" id="disc">📻</div>
-        <div class="song-title" id="stationName">Kral FM</div>
-        <div class="artist">CANLI YAYIN</div>
+        <div class="cover" id="disc">
+            🔥
+        </div>
+        <div class="song-title" id="songTitle">Yükleniyor...</div>
+        <div class="artist" id="artistName">Bağlantı Kuruluyor</div>
+        <div class="channel-name" id="channelName">RADYO FENOMEN</div>
         
-        <audio id="audio" src="https://kralfm.radyotvonline.net/kralfm"></audio>
+        <audio id="audio" crossorigin="anonymous"></audio>
         
         <div class="stations">
-            <button class="station-btn active" onclick="changeStation('Kral FM', 'https://kralfm.radyotvonline.net/kralfm', this)">👑 KRAL FM</button>
-            <button class="station-btn" onclick="changeStation('Radyo Fenomen', 'https://listen.radyofenomen.com/fenomen/128/icecast.audio', this)">🔥 RADYO FENOMEN</button>
-            <button class="station-btn" onclick="changeStation('Virgin Radio', 'https://17753.live.streamtheworld.com/VIRGIN_RADIO.mp3', this)">🎧 VIRGIN RADIO</button>
+            <button class="station-btn active" id="btn-fenomen" onclick="kanalDegistir('FENOMEN', this)">🔥 FENOMEN</button>
+            <button class="station-btn" onclick="kanalDegistir('FENOMEN_TURK', this)">🇹🇷 TÜRK</button>
+            <button class="station-btn" onclick="kanalDegistir('FENOMEN_RAP', this)">🎤 RAP</button>
         </div>
 
         <div class="controls">
@@ -52,25 +58,78 @@
     </div>
 
     <script>
+        // Senin Getirdiğin Profesyonel API Kodu
+        function Fenomen() {
+            const URI = "https://api.radyofenomen.com/Channels/";
+            const QUERY_STRING = "/?appRef=FenomenWebV2";
+            const AUDIO_URI = "https://listen.radyofenomen.com/";
+            let defaultQuality = 128;
+
+            this.channels = {
+                FENOMEN: { name: "fenomen", url: URI + "radyofenomen" + QUERY_STRING },
+                FENOMEN_TURK: { name: "fenomenturk", url: URI + "fenomenturk" + QUERY_STRING },
+                FENOMEN_RAP: { name: "fenomenrap", url: URI + "fenomenrap" + QUERY_STRING }
+                // İstediğin diğer kanalları da buraya ekleyebilirsin
+            }
+
+            this.get = function (callback, channel, quality = 128) {
+                fetch(channel.url)
+                .then(data => data.json())
+                .then(json => {
+                    let obj = {
+                        audio: { src: AUDIO_URI + channel.name + "/" + quality + "/icecast.audio" },
+                        channel: { name: json.response.channel_name },
+                        song: {
+                            artist: json.response.timeline[0].artistTitle,
+                            title: json.response.timeline[0].songTitle,
+                            albumCover: json.response.timeline[0].albumCoverIMG
+                        }
+                    }
+                    callback(obj);
+                }).catch(e => console.log("API Hatası:", e));
+            }
+        }
+
+        // --- Müzik Çalar Kontrol Sistemi ---
+        const radyoApi = new Fenomen();
         const audio = document.getElementById('audio');
         const playBtn = document.getElementById('playBtn');
         const disc = document.getElementById('disc');
-        const stationNameDisplay = document.getElementById('stationName');
+        
+        let aktifKanal = radyoApi.channels.FENOMEN;
         let isPlaying = false;
+        let sarkiGuncelleyici;
 
-        function changeStation(name, url, btnElement) {
-            // Aktif buton rengini değiştir
+        function sarkiyiGuncelle() {
+            radyoApi.get(function(data) {
+                // Şarkı adını ve sanatçıyı ekrana yaz
+                document.getElementById('songTitle').innerText = data.song.title || "Reklam / Anons";
+                document.getElementById('artistName').innerText = data.song.artist || "Fenomen";
+                document.getElementById('channelName').innerText = data.channel.name;
+
+                // Albüm kapağını güncelle
+                if(data.song.albumCover) {
+                    disc.innerHTML = `<img src="${data.song.albumCover}" alt="Albüm Kapağı">`;
+                } else {
+                    disc.innerHTML = "🔥";
+                }
+
+                // Sadece kanal ilk defa seçildiğinde ses kaynağını değiştir
+                if(audio.src !== data.audio.src) {
+                    audio.src = data.audio.src;
+                    if(isPlaying) audio.play();
+                }
+            }, aktifKanal);
+        }
+
+        function kanalDegistir(kanalKey, btnElement) {
+            // Buton renklerini ayarla
             document.querySelectorAll('.station-btn').forEach(btn => btn.classList.remove('active'));
             btnElement.classList.add('active');
 
-            // Kanalı ve müziği değiştir
-            stationNameDisplay.innerText = name;
-            audio.src = url;
-            
-            // Eğer müzik çalıyorsa, yeni kanalı anında başlat
-            if(isPlaying) {
-                audio.play();
-            }
+            // Kanalı değiştir ve verileri anında çek
+            aktifKanal = radyoApi.channels[kanalKey];
+            sarkiyiGuncelle();
         }
 
         function togglePlay() {
@@ -87,6 +146,13 @@
             }
             isPlaying = !isPlaying;
         }
+
+        // Sayfa açıldığında ilk verileri çek
+        sarkiyiGuncelle();
+
+        // Her 15 saniyede bir apiye bağlanıp şarkı değişti mi diye kontrol et
+        sarkiGuncelleyici = setInterval(sarkiyiGuncelle, 15000);
+
     </script>
 </body>
 </html>

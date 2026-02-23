@@ -15,11 +15,13 @@
         .logo-area span { color: #38BDF8; }
         .logo-area.vip span { color: #F59E0B; text-shadow: 0 0 10px rgba(245, 158, 11, 0.5); }
         
-        .menu-items { padding: 15px 10px; display: flex; flex-direction: column; gap: 5px; border-bottom: 1px solid #334155; overflow-y: auto;}
+        /* SOL MENÜ (KAYDIRILABİLİR ALAN) */
+        .menu-items { padding: 15px 10px; display: flex; flex-direction: column; gap: 5px; border-bottom: 1px solid #334155; overflow-y: auto; max-height: 40vh;}
         .menu-btn { padding: 12px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; color: #94A3B8; display: flex; align-items: center; transition: 0.2s; font-size: 14px;}
         .menu-btn:hover { background-color: #334155; color: white; } 
         .menu-btn.active { background-color: #38BDF8; color: white; }
         
+        /* ARAMA VE ARKADAŞ LİSTESİ */
         .search-area { padding: 15px; border-bottom: 1px solid #334155; background: #0B0F19; }
         .search-box { display: flex; gap: 5px; }
         .search-box input { flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #475569; background: #1E293B; color: white; outline: none; }
@@ -30,10 +32,12 @@
         .friend-item { padding: 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.2s; background: rgba(255,255,255,0.02); margin-bottom:5px;}
         .friend-item:hover { background: rgba(255,255,255,0.05); }
         
+        /* AVATAR TASARIMI */
         .friend-avatar { width: 35px; height: 35px; border-radius: 50%; background: #38BDF8; display: flex; justify-content: center; align-items: center; font-weight: bold; color: white; overflow: hidden; border: 2px solid transparent;}
         .friend-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .friend-avatar.vip-avatar { border-color: #F59E0B; box-shadow: 0 0 8px rgba(245, 158, 11, 0.5); }
 
+        /* PROFİL (SOL ALT) */
         .profile-area { padding: 15px; background-color: #0B0F19; display: flex; align-items: center; gap: 15px; border-top: 1px solid #334155; }
         .profile-details { flex: 1; overflow: hidden; }
         .user-name-display { font-size: 16px; font-weight: bold; color: white; text-transform: uppercase; }
@@ -41,6 +45,7 @@
         .my-id-box { background: #1E293B; padding: 5px; border-radius: 6px; text-align: center; font-weight: bold; color: #38BDF8; border: 1px dashed #475569; cursor: pointer; font-size: 12px; margin-top:5px;}
         .logout-btn { background: #EF4444; color: white; border: none; padding: 6px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 5px; width: 100%;}
 
+        /* ANA SOHBET ALANI */
         .main-content { flex: 1; display: flex; flex-direction: column; background: #0F172A; }
         .connect-bar { padding: 15px 20px; background: #1E293B; display: flex; gap: 10px; align-items: center; border-bottom: 1px solid #334155; }
         .connect-info { color: #94A3B8; font-size: 14px; margin-right: auto; }
@@ -71,8 +76,13 @@
 
     <div class="sidebar">
         <div class="logo-area" id="logo">❄️ Winter<span>Chat</span></div>
+        
         <div class="menu-items">
             <div class="menu-btn active">💬 Sohbet & Bağlantı</div>
+            
+            <div class="menu-btn" style="color: #A855F7;" onclick="window.location.href='music.html'">🎧 Winter Radyo</div>
+            <div class="menu-btn" onclick="window.location.href='xox.html'">❄️ Winter XOX</div>
+            <div class="menu-btn" onclick="window.location.href='hangman.html'">💻 Sistemi Hackle</div>
             <div class="menu-btn" style="color: #22C55E;" onclick="window.location.href='case.html'">🎁 Günlük Kasa Aç</div>
             
             <div class="menu-btn" onclick="window.location.href='news.html'">📰 Haberler & Duyurular</div>
